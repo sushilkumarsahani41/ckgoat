@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "844509597602",
+    "project_id": "ck-goatfarm",
+    "storage_bucket": "ck-goatfarm.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:844509597602:android:f812f8df826dc5398eecfb",
+        "android_client_info": {
+          "package_name": "com.greatshark.ckgoat"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "844509597602-am8bk0j749b9jd84c08nhhs23q5snc0q.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBPcI7STVQO7u5U4lrcdz7TFzGdOdzftyI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "844509597602-am8bk0j749b9jd84c08nhhs23q5snc0q.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
