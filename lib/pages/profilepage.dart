@@ -5,6 +5,8 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class UserProfilePage extends StatefulWidget {
+  const UserProfilePage({super.key});
+
   @override
   _UserProfilePageState createState() => _UserProfilePageState();
 }
@@ -64,38 +66,38 @@ class _UserProfilePageState extends State<UserProfilePage> {
               backgroundColor: Colors.blue,
               child: Text(
                 _userName.isNotEmpty ? _userName[0].toUpperCase() : '?',
-                style: TextStyle(fontSize: 40, color: Colors.white),
+                style: const TextStyle(fontSize: 40, color: Colors.white),
               ),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             Text(
               _userName,
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             Text(
               _userEmail,
               style: TextStyle(fontSize: 16, color: Colors.grey[600]),
             ),
-            SizedBox(height: 40),
+            const SizedBox(height: 40),
             ElevatedButton(
               onPressed: _logout,
-              child: Text('Logout'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.red,
-                padding: EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+                padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
               ),
+              child: const Text('Logout'),
             ),
-            Spacer(),
+            const Spacer(),
             Text(
               'App Version: $_appVersion',
-              style: TextStyle(fontSize: 12, color: Colors.grey),
+              style: const TextStyle(fontSize: 12, color: Colors.grey),
             ),
-            Text(
+            const Text(
               'Developed by GreatShark Technologies',
               style: TextStyle(fontSize: 12, color: Colors.grey),
             ),
-            SizedBox(
+            const SizedBox(
               height: 5,
             ),
           ],

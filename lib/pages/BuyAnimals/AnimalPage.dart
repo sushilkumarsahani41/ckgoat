@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class AnimalPage extends StatefulWidget {
   final String animalId;
 
-  AnimalPage({required this.animalId});
+  const AnimalPage({super.key, required this.animalId});
 
   @override
   _AnimalPageState createState() => _AnimalPageState();
@@ -46,15 +45,15 @@ class _AnimalPageState extends State<AnimalPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Product Page'),
+        title: const Text('Product Page'),
         backgroundColor: Colors.deepOrange,
       ),
       body: animalData == null
-          ? Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator())
           : Stack(
               children: [
                 SingleChildScrollView(
-                  padding: EdgeInsets.only(bottom: 80),
+                  padding: const EdgeInsets.only(bottom: 80),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -93,7 +92,7 @@ class _AnimalPageState extends State<AnimalPage> {
                                   child: Container(
                                     width: 8.0,
                                     height: 8.0,
-                                    margin: EdgeInsets.symmetric(
+                                    margin: const EdgeInsets.symmetric(
                                         vertical: 8.0, horizontal: 4.0),
                                     decoration: BoxDecoration(
                                       shape: BoxShape.circle,
@@ -108,94 +107,94 @@ class _AnimalPageState extends State<AnimalPage> {
                           ),
                         ],
                       ),
-                      SizedBox(height: 20),
+                      const SizedBox(height: 20),
                       Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 16.0),
+                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
                         child: Card(
                           elevation: 5,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(15),
                           ),
                           child: Padding(
-                            padding: EdgeInsets.all(16.0),
+                            padding: const EdgeInsets.all(16.0),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
                                   animalData?['title'] ?? 'No title',
-                                  style: TextStyle(
+                                  style: const TextStyle(
                                       fontSize: 24,
                                       fontWeight: FontWeight.bold),
                                 ),
-                                SizedBox(height: 10),
+                                const SizedBox(height: 10),
                                 Row(
                                   children: [
-                                    Icon(Icons.location_on, color: Colors.grey),
-                                    SizedBox(width: 5),
+                                    const Icon(Icons.location_on, color: Colors.grey),
+                                    const SizedBox(width: 5),
                                     Text(
                                         '${animalData?['addressLine1']}, ${animalData?['city']}',
-                                        style: TextStyle(fontSize: 16)),
+                                        style: const TextStyle(fontSize: 16)),
                                   ],
                                 ),
-                                SizedBox(height: 10),
+                                const SizedBox(height: 10),
                                 Row(
                                   children: [
-                                    Icon(Icons.calendar_today,
+                                    const Icon(Icons.calendar_today,
                                         color: Colors.grey),
-                                    SizedBox(width: 5),
+                                    const SizedBox(width: 5),
                                     Text('Age: ${animalData?['age']}',
-                                        style: TextStyle(fontSize: 16)),
+                                        style: const TextStyle(fontSize: 16)),
                                   ],
                                 ),
-                                SizedBox(height: 10),
+                                const SizedBox(height: 10),
                                 Row(
                                   children: [
-                                    Icon(Icons.phone, color: Colors.grey),
-                                    SizedBox(width: 5),
+                                    const Icon(Icons.phone, color: Colors.grey),
+                                    const SizedBox(width: 5),
                                     Text('${animalData?['mobileNumber']}',
-                                        style: TextStyle(fontSize: 16)),
+                                        style: const TextStyle(fontSize: 16)),
                                   ],
                                 ),
-                                SizedBox(height: 10),
+                                const SizedBox(height: 10),
                                 Row(
                                   children: [
-                                    Icon(Icons.pets, color: Colors.grey),
-                                    SizedBox(width: 5),
+                                    const Icon(Icons.pets, color: Colors.grey),
+                                    const SizedBox(width: 5),
                                     Text('Breed Info: ${animalData?['breed']}',
-                                        style: TextStyle(fontSize: 16)),
+                                        style: const TextStyle(fontSize: 16)),
                                   ],
                                 ),
-                                SizedBox(height: 10),
+                                const SizedBox(height: 10),
                                 Row(
                                   children: [
-                                    Icon(Icons.scale, color: Colors.grey),
-                                    SizedBox(width: 5),
+                                    const Icon(Icons.scale, color: Colors.grey),
+                                    const SizedBox(width: 5),
                                     Text('Weight: ${animalData?['weight']} kg',
-                                        style: TextStyle(fontSize: 16)),
+                                        style: const TextStyle(fontSize: 16)),
                                   ],
                                 ),
-                                SizedBox(height: 10),
+                                const SizedBox(height: 10),
                                 Row(
                                   children: [
-                                    Icon(Icons.attach_money,
+                                    const Icon(Icons.attach_money,
                                         color: Colors.grey),
-                                    SizedBox(width: 5),
+                                    const SizedBox(width: 5),
                                     Text('Price: \$${animalData?['price']}',
-                                        style: TextStyle(fontSize: 16)),
+                                        style: const TextStyle(fontSize: 16)),
                                   ],
                                 ),
-                                SizedBox(height: 10),
-                                Text(
+                                const SizedBox(height: 10),
+                                const Text(
                                   'Description:',
                                   style: TextStyle(
                                       fontSize: 18,
                                       fontWeight: FontWeight.bold),
                                 ),
-                                SizedBox(height: 5),
+                                const SizedBox(height: 5),
                                 Text(
                                   animalData?['description'] ??
                                       'No description',
-                                  style: TextStyle(fontSize: 16),
+                                  style: const TextStyle(fontSize: 16),
                                 ),
                               ],
                             ),
@@ -210,8 +209,8 @@ class _AnimalPageState extends State<AnimalPage> {
                   left: 0,
                   right: 0,
                   child: Container(
-                    padding: EdgeInsets.all(10),
-                    decoration: BoxDecoration(
+                    padding: const EdgeInsets.all(10),
+                    decoration: const BoxDecoration(
                       color: Colors.white,
                       boxShadow: [
                         BoxShadow(
@@ -232,30 +231,30 @@ class _AnimalPageState extends State<AnimalPage> {
                           onPressed: () {
                             _handleCallNow();
                           },
-                          icon: Icon(Icons.phone),
-                          label: Text('Call Now'),
+                          icon: const Icon(Icons.phone),
+                          label: const Text('Call Now'),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.deepOrange,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(10),
                             ),
-                            padding: EdgeInsets.symmetric(
+                            padding: const EdgeInsets.symmetric(
                                 horizontal: 20, vertical: 15),
                           ),
                         ),
-                        SizedBox(width: 10),
+                        const SizedBox(width: 10),
                         ElevatedButton.icon(
                           onPressed: () {
                             _handleWhatsApp();
                           },
-                          icon: Icon(Icons.message),
-                          label: Text('WhatsApp'),
+                          icon: const Icon(Icons.message),
+                          label: const Text('WhatsApp'),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.green,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(10),
                             ),
-                            padding: EdgeInsets.symmetric(
+                            padding: const EdgeInsets.symmetric(
                                 horizontal: 20, vertical: 15),
                           ),
                         ),

@@ -1,4 +1,3 @@
-import 'package:ckgoat/services/UploadService.dart';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'dart:io';
@@ -9,7 +8,7 @@ import 'package:video_thumbnail/video_thumbnail.dart';
 class FileUploadWidget extends StatefulWidget {
   final Function(List<File>) onFilesSelected;
 
-  FileUploadWidget({required this.onFilesSelected});
+  const FileUploadWidget({super.key, required this.onFilesSelected});
 
   @override
   _FileUploadWidgetState createState() => _FileUploadWidgetState();
@@ -108,11 +107,11 @@ class _FileUploadWidgetState extends State<FileUploadWidget> {
     return DottedBorder(
       borderType: BorderType.RRect,
       radius: const Radius.circular(12),
-      dashPattern: [8, 2],
+      dashPattern: const [8, 2],
       color: Colors.deepOrange,
       strokeWidth: 2,
       child: Container(
-        padding: EdgeInsets.all(10),
+        padding: const EdgeInsets.all(10),
         width: double.infinity,
         height: 130,
         decoration: BoxDecoration(
@@ -147,7 +146,7 @@ class _FileUploadWidgetState extends State<FileUploadWidget> {
                       return GestureDetector(
                         onTap: _pickAndUploadFiles,
                         child: Container(
-                          margin: EdgeInsets.all(5),
+                          margin: const EdgeInsets.all(5),
                           decoration: BoxDecoration(
                             color: Colors.deepOrange.shade50,
                             borderRadius: BorderRadius.circular(12),
@@ -159,7 +158,7 @@ class _FileUploadWidgetState extends State<FileUploadWidget> {
                               border: Border.all(
                                   color: Colors.deepOrange, width: 1),
                             ),
-                            child: Center(
+                            child: const Center(
                               child: Icon(Icons.add,
                                   color: Colors.deepOrange, size: 30),
                             ),
@@ -170,7 +169,7 @@ class _FileUploadWidgetState extends State<FileUploadWidget> {
 
                     File file = selectedFiles[index - 1];
                     return Container(
-                      margin: EdgeInsets.all(5),
+                      margin: const EdgeInsets.all(5),
                       width: 100,
                       child: Stack(
                         children: <Widget>[
@@ -191,7 +190,7 @@ class _FileUploadWidgetState extends State<FileUploadWidget> {
                                         errorBuilder: (BuildContext context,
                                             Object error,
                                             StackTrace? stackTrace) {
-                                          return Center(
+                                          return const Center(
                                             child: Text('Invalid image',
                                                 style: TextStyle(
                                                     color: Colors.red)),
@@ -211,7 +210,7 @@ class _FileUploadWidgetState extends State<FileUploadWidget> {
                                             errorBuilder: (BuildContext context,
                                                 Object error,
                                                 StackTrace? stackTrace) {
-                                              return Center(
+                                              return const Center(
                                                 child: Text(
                                                     'Invalid video thumbnail',
                                                     style: TextStyle(
@@ -220,7 +219,7 @@ class _FileUploadWidgetState extends State<FileUploadWidget> {
                                             },
                                           ),
                                         )
-                                      : Center(
+                                      : const Center(
                                           child: CircularProgressIndicator(),
                                         ),
                             ),
@@ -238,11 +237,11 @@ class _FileUploadWidgetState extends State<FileUploadWidget> {
                                     selectedFiles); // Notify parent widget
                               },
                               child: Container(
-                                decoration: BoxDecoration(
+                                decoration: const BoxDecoration(
                                   color: Colors.red,
                                   shape: BoxShape.circle,
                                 ),
-                                child: Icon(Icons.close, color: Colors.white),
+                                child: const Icon(Icons.close, color: Colors.white),
                               ),
                             ),
                           ),
@@ -269,7 +268,7 @@ class _FileUploadWidgetState extends State<FileUploadWidget> {
 class FilePreviewScreen extends StatelessWidget {
   final File file;
 
-  FilePreviewScreen({required this.file});
+  const FilePreviewScreen({super.key, required this.file});
 
   bool _isImage(File file) {
     final imageExtensions = ['jpg', 'jpeg', 'png', 'gif'];
@@ -281,7 +280,7 @@ class FilePreviewScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('File Preview'),
+        title: const Text('File Preview'),
       ),
       body: Center(
         child:
@@ -294,7 +293,7 @@ class FilePreviewScreen extends StatelessWidget {
 class VideoPlayerWidget extends StatefulWidget {
   final File file;
 
-  VideoPlayerWidget({required this.file});
+  const VideoPlayerWidget({super.key, required this.file});
 
   @override
   _VideoPlayerWidgetState createState() => _VideoPlayerWidgetState();

@@ -19,7 +19,7 @@ class RouteGenerator {
       case '/signup':
         return _createRoute(const SignupPage());
       case '/sellAnimal':
-        return _createRoute(SellAnimalPage());
+        return _createRoute(const SellAnimalPage());
       default:
         return _errorRoute();
     }
@@ -48,9 +48,9 @@ class RouteGenerator {
     return MaterialPageRoute(builder: (_) {
       return Scaffold(
         appBar: AppBar(
-          title: Text('Error'),
+          title: const Text('Error'),
         ),
-        body: Center(
+        body: const Center(
           child: Text('ERROR: Route not found!'),
         ),
       );

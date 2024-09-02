@@ -3,6 +3,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 class FilterSection extends StatefulWidget {
+  const FilterSection({super.key});
+
   @override
   _FilterSectionState createState() => _FilterSectionState();
 }
@@ -47,12 +49,12 @@ class _FilterSectionState extends State<FilterSection> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text("Filter City :"),
+              const Text("Filter City :"),
               SizedBox(
                 width: 150,
                 child: DropdownButton<String>(
                   value: selectedCity,
-                  hint: Text('Select City'),
+                  hint: const Text('Select City'),
                   items: cities.map((String city) {
                     return DropdownMenuItem<String>(
                       value: city,
@@ -69,7 +71,7 @@ class _FilterSectionState extends State<FilterSection> {
               ),
             ],
           ),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
           // Filter by animal type (Horizontal scrollable ElevatedButtons)
           SizedBox(
             height: 30,
@@ -99,23 +101,23 @@ class _FilterSectionState extends State<FilterSection> {
               }).toList(),
             ),
           ),
-          SizedBox(height: 10),
+          const SizedBox(height: 10),
           Expanded(
             child: StreamBuilder<QuerySnapshot>(
               stream: query.snapshots(),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return Center(child: CircularProgressIndicator());
+                  return const Center(child: CircularProgressIndicator());
                 }
                 if (snapshot.hasError) {
                   return Center(child: Text('Error: ${snapshot.error}'));
                 }
                 if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                  return Center(child: Text('No animals found.'));
+                  return const Center(child: Text('No animals found.'));
                 }
 
                 return GridView.builder(
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                       mainAxisExtent: 230,
                       mainAxisSpacing: 15,
                       crossAxisCount: 2,
@@ -146,7 +148,7 @@ class _FilterSectionState extends State<FilterSection> {
                           Container(
                             decoration: BoxDecoration(
                                 color: Colors.blue,
-                                boxShadow: [
+                                boxShadow: const [
                                   BoxShadow(
                                     color: Colors.black12,
                                     blurRadius: 10,
@@ -158,7 +160,7 @@ class _FilterSectionState extends State<FilterSection> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 ClipRRect(
-                                  borderRadius: BorderRadius.only(
+                                  borderRadius: const BorderRadius.only(
                                       topLeft: Radius.circular(10),
                                       topRight: Radius.circular(10)),
                                   child: Image.network(
@@ -178,13 +180,13 @@ class _FilterSectionState extends State<FilterSection> {
                                     children: [
                                       Text(
                                         data['title'],
-                                        style: TextStyle(
+                                        style: const TextStyle(
                                             color: Colors.white,
                                             fontWeight: FontWeight.bold),
                                       ),
                                       Row(
                                         children: [
-                                          Text(
+                                          const Text(
                                             'Breed : ',
                                             style: TextStyle(
                                                 color: Colors.white,
@@ -192,7 +194,7 @@ class _FilterSectionState extends State<FilterSection> {
                                           ),
                                           Text(
                                             data['breed'],
-                                            style: TextStyle(
+                                            style: const TextStyle(
                                                 color: Colors.white,
                                                 fontWeight: FontWeight.normal),
                                           )
@@ -200,7 +202,7 @@ class _FilterSectionState extends State<FilterSection> {
                                       ),
                                       Row(
                                         children: [
-                                          Text(
+                                          const Text(
                                             'Price : ',
                                             style: TextStyle(
                                                 color: Colors.white,
@@ -208,7 +210,7 @@ class _FilterSectionState extends State<FilterSection> {
                                           ),
                                           Text(
                                             '${data['price']}',
-                                            style: TextStyle(
+                                            style: const TextStyle(
                                                 color: Colors.white,
                                                 fontWeight: FontWeight.normal),
                                           )
@@ -225,7 +227,7 @@ class _FilterSectionState extends State<FilterSection> {
                             bottom: 55,
                             child: Container(
                               width: 40,
-                              decoration: BoxDecoration(boxShadow: [
+                              decoration: const BoxDecoration(boxShadow: [
                                 BoxShadow(
                                   color: Colors.black12,
                                   blurRadius: 10,
@@ -233,7 +235,7 @@ class _FilterSectionState extends State<FilterSection> {
                                 ),
                               ], shape: BoxShape.circle, color: Colors.white),
                               child: IconButton(
-                                icon: Icon(
+                                icon: const Icon(
                                   Icons.favorite_outline,
                                   color: Colors.black45,
                                 ),

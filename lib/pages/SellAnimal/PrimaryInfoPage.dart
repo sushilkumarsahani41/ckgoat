@@ -6,6 +6,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
 class PrimaryInfoPage extends StatefulWidget {
+  const PrimaryInfoPage({super.key});
+
   @override
   _PrimaryInfoPageState createState() => _PrimaryInfoPageState();
 }
@@ -30,7 +32,7 @@ class _PrimaryInfoPageState extends State<PrimaryInfoPage> {
                 fontWeight: FontWeight.bold,
                 color: Colors.deepOrange)),
         leading: IconButton(
-          icon: Icon(Icons.arrow_back),
+          icon: const Icon(Icons.arrow_back),
           onPressed: () {
             Navigator.pop(context);
           },
@@ -42,14 +44,14 @@ class _PrimaryInfoPageState extends State<PrimaryInfoPage> {
           key: _formKey,
           child: ListView(
             children: [
-              Text(
+              const Text(
                 "Breed",
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               TextFormField(
                 controller: _breedController,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Breed',
                   border: OutlineInputBorder(),
                   focusedBorder: OutlineInputBorder(
@@ -64,8 +66,8 @@ class _PrimaryInfoPageState extends State<PrimaryInfoPage> {
                   return null;
                 },
               ),
-              SizedBox(height: 16),
-              Text(
+              const SizedBox(height: 16),
+              const Text(
                 "Age",
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
@@ -74,7 +76,7 @@ class _PrimaryInfoPageState extends State<PrimaryInfoPage> {
                   Expanded(
                     child: Column(
                       children: [
-                        Text(
+                        const Text(
                           "Years",
                           style: TextStyle(fontSize: 14),
                         ),
@@ -92,7 +94,7 @@ class _PrimaryInfoPageState extends State<PrimaryInfoPage> {
                           },
                           children: List<Widget>.generate(20, (int index) {
                             return Center(
-                              child: Text('${index}'),
+                              child: Text('$index'),
                             );
                           }),
                         ),
@@ -109,7 +111,7 @@ class _PrimaryInfoPageState extends State<PrimaryInfoPage> {
                   Expanded(
                     child: Column(
                       children: [
-                        Text(
+                        const Text(
                           "Months",
                           style: TextStyle(fontSize: 14),
                         ),
@@ -127,7 +129,7 @@ class _PrimaryInfoPageState extends State<PrimaryInfoPage> {
                           },
                           children: List<Widget>.generate(12, (int index) {
                             return Center(
-                              child: Text('${index}'),
+                              child: Text('$index'),
                             );
                           }),
                         ),
@@ -143,11 +145,11 @@ class _PrimaryInfoPageState extends State<PrimaryInfoPage> {
                   ),
                 ],
               ),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
+                  const Text(
                     "Weight",
                     style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   ),
@@ -205,15 +207,15 @@ class _PrimaryInfoPageState extends State<PrimaryInfoPage> {
                   ],
                 ),
               ),
-              SizedBox(height: 16),
-              Text(
+              const SizedBox(height: 16),
+              const Text(
                 "Price",
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               TextFormField(
                 controller: _priceController,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Price',
                   prefixIcon:
                       Icon(Icons.currency_rupee, color: Colors.deepOrange),
@@ -231,10 +233,10 @@ class _PrimaryInfoPageState extends State<PrimaryInfoPage> {
                   return null;
                 },
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  padding: EdgeInsets.symmetric(vertical: 16.0),
+                  padding: const EdgeInsets.symmetric(vertical: 16.0),
                   backgroundColor: Colors.deepOrange,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10.0),
@@ -262,11 +264,11 @@ class _PrimaryInfoPageState extends State<PrimaryInfoPage> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (context) => SecondaryInfoPage()),
+                          builder: (context) => const SecondaryInfoPage()),
                     );
                   }
                 },
-                child: Text('Next',
+                child: const Text('Next',
                     style: TextStyle(fontSize: 18, color: Colors.white)),
               ),
             ],

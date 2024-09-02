@@ -23,7 +23,7 @@ class AnimalFormProvider with ChangeNotifier {
 
   void setPrimaryInfo(String breed, int years, int months, double weight, double price) {
     this.breed = breed;
-    this.age = (years * 12) + months; // Calculate age in months
+    age = (years * 12) + months; // Calculate age in months
     this.weight = weight;
     this.price = price;
     notifyListeners();
@@ -42,6 +42,8 @@ class AnimalFormProvider with ChangeNotifier {
 }
 
 class SellAnimalPage extends StatelessWidget {
+  const SellAnimalPage({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -54,7 +56,7 @@ class SellAnimalPage extends StatelessWidget {
               color: Colors.deepOrange),
         ),
       ),
-      body: AnimalTypePage(),
+      body: const AnimalTypePage(),
     );
   }
 }

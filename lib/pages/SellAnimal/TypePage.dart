@@ -4,11 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class AnimalTypePage extends StatelessWidget {
+  const AnimalTypePage({super.key});
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return const Scaffold(
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: EdgeInsets.all(16.0),
         child: SingleChildScrollView(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -33,7 +35,7 @@ class AnimalTypeButton extends StatelessWidget {
   final String animal;
   final String imagePath;
 
-  AnimalTypeButton({required this.animal, required this.imagePath});
+  const AnimalTypeButton({super.key, required this.animal, required this.imagePath});
 
   @override
   Widget build(BuildContext context) {
@@ -41,28 +43,28 @@ class AnimalTypeButton extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
-          padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 5),
+          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 5),
           backgroundColor: Colors.white,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(10.0),
           ), // Background color
           elevation: 0, // Remove button shadow
           side:
-              BorderSide(color: Colors.deepOrange, width: 1.5), // Border color
+              const BorderSide(color: Colors.deepOrange, width: 1.5), // Border color
         ),
         onPressed: () {
           Provider.of<AnimalFormProvider>(context, listen: false)
               .setAnimalType(animal);
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => PrimaryInfoPage()),
+            MaterialPageRoute(builder: (context) => const PrimaryInfoPage()),
           );
         },
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(animal,
-                style: TextStyle(fontSize: 18, color: Colors.deepOrange)),
+                style: const TextStyle(fontSize: 18, color: Colors.deepOrange)),
             Image.asset(
               imagePath,
               height: 80,

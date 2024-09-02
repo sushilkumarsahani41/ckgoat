@@ -1,8 +1,9 @@
 import 'package:ckgoat/pages/BuyAnimals/FilterSection.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 class BuyHome extends StatefulWidget {
+  const BuyHome({super.key});
+
   @override
   State<BuyHome> createState() => _BuyHomeState();
 }
@@ -20,7 +21,7 @@ class _BuyHomeState extends State<BuyHome> {
                   onPressed: () {
                     Navigator.pushNamed(context, '/sellAnimal');
                   },
-                  child: Text('Sell Your Animal'),
+                  child: const Text('Sell Your Animal'),
                 )
               : SizedBox(
                   height: 200,
@@ -35,7 +36,7 @@ class _BuyHomeState extends State<BuyHome> {
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(15.0),
                             color: const Color.fromARGB(255, 55, 160, 247),
-                            boxShadow: [
+                            boxShadow: const [
                               BoxShadow(
                                 color: Colors.black12,
                                 blurRadius: 10,
@@ -55,8 +56,8 @@ class _BuyHomeState extends State<BuyHome> {
                                     Container(
                                       width:
                                           120, // Adjusted width for better layout
-                                      padding: EdgeInsets.only(left: 10),
-                                      child: Text(
+                                      padding: const EdgeInsets.only(left: 10),
+                                      child: const Text(
                                         "No More Selling From Bazaar",
                                         style: TextStyle(
                                           fontSize: 18,
@@ -65,7 +66,7 @@ class _BuyHomeState extends State<BuyHome> {
                                         ),
                                       ),
                                     ),
-                                    SizedBox(height: 5),
+                                    const SizedBox(height: 5),
                                     ElevatedButton(
                                       onPressed: () {
                                         Navigator.pushNamed(
@@ -76,7 +77,7 @@ class _BuyHomeState extends State<BuyHome> {
                                         backgroundColor:
                                             Colors.white, // Background color
                                       ),
-                                      child: Text(
+                                      child: const Text(
                                         "Sell Now",
                                         style: TextStyle(
                                           color: Colors.blue,
@@ -87,7 +88,7 @@ class _BuyHomeState extends State<BuyHome> {
                                   ],
                                 ),
                               ),
-                              Spacer(), // This will push the image to the right
+                              const Spacer(), // This will push the image to the right
                             ],
                           ),
                         ),
@@ -113,8 +114,8 @@ class _BuyHomeState extends State<BuyHome> {
                             });
                           },
                           icon: Container(
-                            padding: EdgeInsets.all(6),
-                            decoration: BoxDecoration(
+                            padding: const EdgeInsets.all(6),
+                            decoration: const BoxDecoration(
                               boxShadow: [
                                 BoxShadow(
                                   color: Colors.black12,
@@ -125,7 +126,7 @@ class _BuyHomeState extends State<BuyHome> {
                               color: Colors.white,
                               shape: BoxShape.circle,
                             ),
-                            child: Icon(
+                            child: const Icon(
                               Icons.visibility_off,
                               color: Colors.grey,
                             ),
@@ -135,7 +136,7 @@ class _BuyHomeState extends State<BuyHome> {
                     ],
                   ),
                 ),
-          Expanded(child: FilterSection())
+          const Expanded(child: FilterSection())
         ],
       ),
     );

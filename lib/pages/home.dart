@@ -1,12 +1,10 @@
-import 'package:ckgoat/pages/BuyAnimals/AnimalPage.dart';
+import 'package:ckgoat/main.dart';
 import 'package:ckgoat/pages/BuyAnimals/BuyAnimalHome.dart';
+import 'package:ckgoat/pages/SellAnimal/FormPage.dart';
 import 'package:ckgoat/pages/profilepage.dart';
-import 'package:ckgoat/pages/shop.dart';
 import 'package:ckgoat/pages/forum/community.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -26,7 +24,7 @@ class _HomeScreenState extends State<HomeScreen> {
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text("CK GOAT FARM",
+              Text(AppLocalizations.of(context).translate('app_title'),
                   style: GoogleFonts.archivoBlack(
                       fontSize: 22,
                       fontWeight: FontWeight.bold,
@@ -34,10 +32,10 @@ class _HomeScreenState extends State<HomeScreen> {
             ],
           ),
         ),
-        body: TabBarView(
+        body: const TabBarView(
           children: [
             BuyHome(),
-            ShopPage(),
+            SellAnimalPage(),
             ForumPage(),
             UserProfilePage(),
           ],
@@ -45,12 +43,12 @@ class _HomeScreenState extends State<HomeScreen> {
         bottomNavigationBar: Container(
           decoration: BoxDecoration(
               color: Colors.white,
-              border: Border(
+              border: const Border(
                   right: BorderSide(color: Colors.grey),
                   left: BorderSide(color: Colors.grey),
                   top: BorderSide(color: Colors.grey),
                   bottom: BorderSide.none),
-              borderRadius: BorderRadius.only(
+              borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(20),
                 topRight: Radius.circular(20),
               ),
@@ -58,25 +56,27 @@ class _HomeScreenState extends State<HomeScreen> {
                 BoxShadow(
                   spreadRadius: 2,
                   blurRadius: 5,
-                  // offset: const Offset(3, 4),
                   color: Colors.grey.shade400,
                 ),
               ]),
           child: TabBar(
             indicatorSize: TabBarIndicatorSize.label,
             indicatorColor: Colors.deepOrange,
-            // indicator: BoxDecoration(
-            //   color: Colors.deepOrange, // Indicator color
-            //   shape: BoxShape.circle, // Circular shape around the icon
-            // ),
-            labelColor: Colors.deepOrange, // Color of text when selected
-            unselectedLabelColor:
-                Colors.black87, // Color of text when not selected
+            labelColor: Colors.deepOrange,
+            unselectedLabelColor: Colors.black87,
             tabs: [
-              Tab(icon: Icon(Icons.pets), text: 'Pets'),
-              Tab(icon: Icon(Icons.storefront_outlined), text: 'Shop'),
-              Tab(icon: Icon(Icons.diversity_3_outlined), text: 'Family'),
-              Tab(icon: Icon(Icons.person), text: 'Profile'),
+              Tab(
+                  icon: const Icon(Icons.pets),
+                  text: AppLocalizations.of(context).translate('buy')),
+              Tab(
+                  icon: const Icon(Icons.pets),
+                  text: AppLocalizations.of(context).translate('sell')),
+              Tab(
+                  icon: const Icon(Icons.diversity_3_outlined),
+                  text: AppLocalizations.of(context).translate('family')),
+              Tab(
+                  icon: const Icon(Icons.person),
+                  text: AppLocalizations.of(context).translate('profile')),
             ],
           ),
         ),

@@ -1,0 +1,21 @@
+{
+    "app_title": "सीके फार्म",
+    "app_subtitle": "पशु खरीद और बिक्री",
+    "login": "लॉग इन करें",
+    "logout": "लॉग आउट करें",
+    "email": "ईमेल",
+    "password": "पासवर्ड",
+    "forgot_password": "पासवर्ड भूल गए?",
+    "enter_email_password": "कृपया ईमेल और पासवर्ड दोनों दर्ज करें।",
+    "login_failed": "लॉगिन करने में विफल।",
+    "or_continue_with": "या जारी रखें",
+    "dont_have_account": "खाता नहीं है?",
+    "sign_up": "साइन अप करें",
+    "enter_label": "दर्ज करें",
+    "buy": "खरीदना",
+    "sell":"बेचना",
+    "shop": "दुकान",
+    "family": "परिवार",
+    "profile": "प्रोफ़ाइल"
+  }
+  

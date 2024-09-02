@@ -1,0 +1,21 @@
+{
+    "app_title": "सीके फार्म",
+    "app_subtitle": "प्राणी खरेदी आणि विक्री",
+    "login": "लॉगिन करा",
+    "logout": "लॉगआउट करा",
+    "email": "ईमेल",
+    "password": "पासवर्ड",
+    "forgot_password": "पासवर्ड विसरलात?",
+    "enter_email_password": "कृपया ईमेल आणि पासवर्ड दोन्ही प्रविष्ट करा.",
+    "login_failed": "लॉगिन करण्यात अयशस्वी.",
+    "or_continue_with": "किंवा सुरू ठेवा",
+    "dont_have_account": "खाते नाही?",
+    "sign_up": "साइन अप करा",
+    "enter_label": "प्रविष्ट करा",
+    "buy": "घेणे",
+    "sell":"विकणे",
+    "shop": "दुकान",
+    "family": "कुटुंब",
+    "profile": "प्रोफाइल"
+  }
+  

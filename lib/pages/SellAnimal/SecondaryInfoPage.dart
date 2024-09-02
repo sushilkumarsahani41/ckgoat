@@ -10,6 +10,8 @@ import 'dart:io';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SecondaryInfoPage extends StatefulWidget {
+  const SecondaryInfoPage({super.key});
+
   @override
   _SecondaryInfoPageState createState() => _SecondaryInfoPageState();
 }
@@ -122,17 +124,17 @@ class _SecondaryInfoPageState extends State<SecondaryInfoPage> {
           key: _formKey,
           child: ListView(
             children: [
-              Text(
+              const Text(
                 "Title",
                 style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
                     color: Colors.deepOrange),
               ),
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               TextFormField(
                 controller: _titleController,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   hintText: 'Your Ad Title',
                   border: OutlineInputBorder(),
                   focusedBorder: OutlineInputBorder(
@@ -147,18 +149,18 @@ class _SecondaryInfoPageState extends State<SecondaryInfoPage> {
                   return null;
                 },
               ),
-              SizedBox(height: 16),
-              Text(
+              const SizedBox(height: 16),
+              const Text(
                 "Description",
                 style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
                     color: Colors.deepOrange),
               ),
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               TextFormField(
                 controller: _descriptionController,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   hintText:
                       'Describe the animal details in brief such as breed, gender, pregnency, etc',
                   border: OutlineInputBorder(),
@@ -175,18 +177,18 @@ class _SecondaryInfoPageState extends State<SecondaryInfoPage> {
                   return null;
                 },
               ),
-              SizedBox(height: 20),
-              Text(
+              const SizedBox(height: 20),
+              const Text(
                 "Address",
                 style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
                     color: Colors.deepOrange),
               ),
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               TextFormField(
                 controller: _addressLine1Controller,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   hintText: 'Address',
                   border: OutlineInputBorder(),
                   focusedBorder: OutlineInputBorder(
@@ -201,18 +203,18 @@ class _SecondaryInfoPageState extends State<SecondaryInfoPage> {
                   return null;
                 },
               ),
-              SizedBox(height: 16),
-              Text(
+              const SizedBox(height: 16),
+              const Text(
                 "City",
                 style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
                     color: Colors.deepOrange),
               ),
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               TextFormField(
                 controller: _cityController,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   hintText: 'City',
                   border: OutlineInputBorder(),
                   focusedBorder: OutlineInputBorder(
@@ -227,18 +229,18 @@ class _SecondaryInfoPageState extends State<SecondaryInfoPage> {
                   return null;
                 },
               ),
-              SizedBox(height: 16),
-              Text(
+              const SizedBox(height: 16),
+              const Text(
                 "State",
                 style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
                     color: Colors.deepOrange),
               ),
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               TextFormField(
                 controller: _stateController,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   hintText: 'State',
                   border: OutlineInputBorder(),
                   focusedBorder: OutlineInputBorder(
@@ -253,18 +255,18 @@ class _SecondaryInfoPageState extends State<SecondaryInfoPage> {
                   return null;
                 },
               ),
-              SizedBox(height: 16),
-              Text(
+              const SizedBox(height: 16),
+              const Text(
                 "Pin Code",
                 style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
                     color: Colors.deepOrange),
               ),
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               TextFormField(
                 controller: _pinCodeController,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   hintText: 'Pin Code',
                   border: OutlineInputBorder(),
                   focusedBorder: OutlineInputBorder(
@@ -279,18 +281,18 @@ class _SecondaryInfoPageState extends State<SecondaryInfoPage> {
                   return null;
                 },
               ),
-              SizedBox(height: 16),
-              Text(
+              const SizedBox(height: 16),
+              const Text(
                 "Mobile Number",
                 style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
                     color: Colors.deepOrange),
               ),
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               TextFormField(
                 controller: _mobileNumberController,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   hintText: 'Mobile No.',
                   border: OutlineInputBorder(),
                   focusedBorder: OutlineInputBorder(
@@ -308,27 +310,27 @@ class _SecondaryInfoPageState extends State<SecondaryInfoPage> {
                   return null;
                 },
               ),
-              SizedBox(height: 20),
-              Text(
+              const SizedBox(height: 20),
+              const Text(
                 "Images & Videos",
                 style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
                     color: Colors.deepOrange),
               ),
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               FileUploadWidget(onFilesSelected: _onFilesSelected),
-              SizedBox(
+              const SizedBox(
                 height: 5,
               ),
-              Text(
+              const Text(
                 '**Note: Maximum allowed file size is 200mb',
                 style: TextStyle(fontStyle: FontStyle.italic),
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  padding: EdgeInsets.symmetric(vertical: 16.0),
+                  padding: const EdgeInsets.symmetric(vertical: 16.0),
                   backgroundColor: Colors.deepOrange,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10.0),
@@ -336,10 +338,10 @@ class _SecondaryInfoPageState extends State<SecondaryInfoPage> {
                 ),
                 onPressed: _submitForm,
                 child: isSubmitClicked
-                    ? CircularProgressIndicator(
+                    ? const CircularProgressIndicator(
                         color: Colors.white,
                       )
-                    : Text('Submit',
+                    : const Text('Submit',
                         style: TextStyle(fontSize: 18, color: Colors.white)),
               ),
             ],

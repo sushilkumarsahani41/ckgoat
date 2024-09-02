@@ -44,8 +44,8 @@ class _SignupPageState extends State<SignupPage> {
       if (cred != Null) {
         SnackbarUtil.showSnackbar(context, 'User Created Successfully');
         // Navigate to home or next appropriate screen
-        final SharedPreferences _pref = await SharedPreferences.getInstance();
-        _pref.setString('uid', cred as String);
+        final SharedPreferences pref = await SharedPreferences.getInstance();
+        pref.setString('uid', cred as String);
         Navigator.pushReplacementNamed(context, '/');
       } else {
         // ignore: use_build_context_synchronously
@@ -89,12 +89,12 @@ class _SignupPageState extends State<SignupPage> {
                       fontSize: 50,
                       fontWeight: FontWeight.bold,
                       color: deepOne)),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               buildTextField("Full Name", _name, false),
               buildTextField("Email", _email, false),
               buildTextField("Password", _pass, true, true),
               buildTextField("Confirm Password", _cnfpass, true),
-              SizedBox(height: 40),
+              const SizedBox(height: 40),
               Center(
                 child: SizedBox(
                   width: 200,
@@ -109,7 +109,7 @@ class _SignupPageState extends State<SignupPage> {
                   ),
                 ),
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               buildSignInLink(),
             ],
           ),
@@ -127,9 +127,9 @@ class _SignupPageState extends State<SignupPage> {
         Text(label,
             style: GoogleFonts.zillaSlab(
                 fontSize: 18, fontWeight: FontWeight.w600)),
-        SizedBox(height: 10),
+        const SizedBox(height: 10),
         AddElevation(
-          color: Color.fromARGB(255, 231, 232, 254),
+          color: const Color.fromARGB(255, 231, 232, 254),
           child: Padding(
             padding: const EdgeInsets.only(right: 5),
             child: TextField(
@@ -138,7 +138,7 @@ class _SignupPageState extends State<SignupPage> {
               decoration: InputDecoration(
                 border: InputBorder.none,
                 hintText: isPassword ? '*******' : 'Enter $label',
-                contentPadding: EdgeInsets.symmetric(horizontal: 15),
+                contentPadding: const EdgeInsets.symmetric(horizontal: 15),
                 suffixIconConstraints: const BoxConstraints(
                   minHeight: 2,
                 ),
@@ -157,7 +157,7 @@ class _SignupPageState extends State<SignupPage> {
             ),
           ),
         ),
-        SizedBox(height: 20),
+        const SizedBox(height: 20),
       ],
     );
   }
