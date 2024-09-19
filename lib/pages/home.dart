@@ -24,11 +24,15 @@ class _HomeScreenState extends State<HomeScreen> {
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(AppLocalizations.of(context).translate('app_title'),
-                  style: GoogleFonts.archivoBlack(
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.deepOrange)),
+              Text(
+                AppLocalizations.of(context)!
+                    .translate('app_title'), // Corrected
+                style: GoogleFonts.archivoBlack(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.deepOrange,
+                ),
+              ),
             ],
           ),
         ),
@@ -42,23 +46,25 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         bottomNavigationBar: Container(
           decoration: BoxDecoration(
-              color: Colors.white,
-              border: const Border(
-                  right: BorderSide(color: Colors.grey),
-                  left: BorderSide(color: Colors.grey),
-                  top: BorderSide(color: Colors.grey),
-                  bottom: BorderSide.none),
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(20),
-                topRight: Radius.circular(20),
+            color: Colors.white,
+            border: const Border(
+              right: BorderSide(color: Colors.grey),
+              left: BorderSide(color: Colors.grey),
+              top: BorderSide(color: Colors.grey),
+              bottom: BorderSide.none,
+            ),
+            borderRadius: const BorderRadius.only(
+              topLeft: Radius.circular(20),
+              topRight: Radius.circular(20),
+            ),
+            boxShadow: [
+              BoxShadow(
+                spreadRadius: 2,
+                blurRadius: 5,
+                color: Colors.grey.shade400,
               ),
-              boxShadow: [
-                BoxShadow(
-                  spreadRadius: 2,
-                  blurRadius: 5,
-                  color: Colors.grey.shade400,
-                ),
-              ]),
+            ],
+          ),
           child: TabBar(
             indicatorSize: TabBarIndicatorSize.label,
             indicatorColor: Colors.deepOrange,
@@ -66,17 +72,25 @@ class _HomeScreenState extends State<HomeScreen> {
             unselectedLabelColor: Colors.black87,
             tabs: [
               Tab(
-                  icon: const Icon(Icons.pets),
-                  text: AppLocalizations.of(context).translate('buy')),
+                icon: const Icon(Icons.pets),
+                text:
+                    AppLocalizations.of(context)!.translate('buy'), // Corrected
+              ),
               Tab(
-                  icon: const Icon(Icons.pets),
-                  text: AppLocalizations.of(context).translate('sell')),
+                icon: const Icon(Icons.pets),
+                text: AppLocalizations.of(context)!
+                    .translate('sell'), // Corrected
+              ),
               Tab(
-                  icon: const Icon(Icons.diversity_3_outlined),
-                  text: AppLocalizations.of(context).translate('family')),
+                icon: const Icon(Icons.diversity_3_outlined),
+                text: AppLocalizations.of(context)!
+                    .translate('family'), // Corrected
+              ),
               Tab(
-                  icon: const Icon(Icons.person),
-                  text: AppLocalizations.of(context).translate('profile')),
+                icon: const Icon(Icons.person),
+                text: AppLocalizations.of(context)!
+                    .translate('profile'), // Corrected
+              ),
             ],
           ),
         ),

@@ -1,5 +1,6 @@
+import 'package:ckgoat/main.dart';
 import 'package:ckgoat/pages/BuyAnimals/FilterSection.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart'; // Assuming you have AppLocalizations
 
 class BuyHome extends StatefulWidget {
   const BuyHome({super.key});
@@ -21,7 +22,10 @@ class _BuyHomeState extends State<BuyHome> {
                   onPressed: () {
                     Navigator.pushNamed(context, '/sellAnimal');
                   },
-                  child: const Text('Sell Your Animal'),
+                  child: Text(
+                    AppLocalizations.of(context)!
+                        .translate('sell_your_animal'), // Translated text
+                  ),
                 )
               : SizedBox(
                   height: 200,
@@ -54,12 +58,12 @@ class _BuyHomeState extends State<BuyHome> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Container(
-                                      width:
-                                          120, // Adjusted width for better layout
+                                      width: 120,
                                       padding: const EdgeInsets.only(left: 10),
-                                      child: const Text(
-                                        "No More Selling From Bazaar",
-                                        style: TextStyle(
+                                      child: Text(
+                                        AppLocalizations.of(context)!.translate(
+                                            'no_more_selling'), // Translated text
+                                        style: const TextStyle(
                                           fontSize: 18,
                                           fontWeight: FontWeight.bold,
                                           color: Colors.white,
@@ -77,9 +81,10 @@ class _BuyHomeState extends State<BuyHome> {
                                         backgroundColor:
                                             Colors.white, // Background color
                                       ),
-                                      child: const Text(
-                                        "Sell Now",
-                                        style: TextStyle(
+                                      child: Text(
+                                        AppLocalizations.of(context)!.translate(
+                                            'sell_now'), // Translated text
+                                        style: const TextStyle(
                                           color: Colors.blue,
                                           fontSize: 14,
                                         ),
@@ -132,7 +137,7 @@ class _BuyHomeState extends State<BuyHome> {
                             ),
                           ),
                         ),
-                      )
+                      ),
                     ],
                   ),
                 ),

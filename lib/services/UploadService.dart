@@ -4,8 +4,10 @@ import 'dart:convert';
 import 'dart:io';
 
 class UploadService {
-  final String uploadUrl = 'https://api.greatshark.tech/upload.php';
-  final String apiKey = 'qyzyPsFd7Ft7yoaWYBjZ3ksvYBgwf3yG';
+  // Updated endpoint and Bearer Token
+  final String uploadUrl = 'https://api.ckgoat.greatshark.tech/storage/upload/';
+  final String bearerToken =
+      'gCW0z7uTiZqbNwoYQsDvE2gAPxdHfXciazPmCzPneXpn444glZ'; // Your actual Bearer token
 
   Future<List<String>> uploadFiles(List<File> files) async {
     List<String> uploadedUrls = [];
@@ -22,16 +24,18 @@ class UploadService {
 
   Future<String?> uploadFile(File file) async {
     var request = http.MultipartRequest('POST', Uri.parse(uploadUrl));
-    request.headers['APIKEY'] = apiKey;
+
+    // Use Bearer Token for authentication
+    request.headers['Authorization'] = 'Bearer $bearerToken';
     request.files.add(await http.MultipartFile.fromPath('file', file.path));
 
     var response = await request.send();
 
-    if (response.statusCode == 200) {
+    if (response.statusCode == 201) {
       var responseBody = await response.stream.bytesToString();
       var jsonResponse = json.decode(responseBody);
-      if (jsonResponse['url'] != null) {
-        return jsonResponse['url'];
+      if (jsonResponse['file_urls'] != null) {
+        return jsonResponse['file_urls'][0];
       } else {
         print('Error: ${jsonResponse['error']}');
         return null;
@@ -49,8 +53,6 @@ class UploadService {
     int? age,
     double? weight,
     double? price,
-    String? title,
-    String? description,
     String? addressLine1,
     String? city,
     String? state,
@@ -58,24 +60,26 @@ class UploadService {
     String? mobileNumber,
     List<String> uploadedUrls,
   ) async {
-    // Your database save logic here
-    // For example, if using Firebase:
-    await FirebaseFirestore.instance.collection('animals').add({
+    // Create a map for the data to be uploaded
+    Map<String, dynamic> animalData = {
       'uid': uid,
-      'animalType': animalType,
-      'breed': breed,
-      'age': age,
-      'weight': weight,
-      'price': price,
-      'title': title,
-      'description': description,
-      'addressLine1': addressLine1,
-      'city': city,
-      'state': state,
-      'pinCode': pinCode,
-      'mobileNumber': mobileNumber,
-      'uploadedUrls': uploadedUrls,
       'createdAt': FieldValue.serverTimestamp(),
-    });
+    };
+
+    // Only add non-null values to the map
+    if (animalType != null) animalData['animalType'] = animalType;
+    if (breed != null) animalData['breed'] = breed;
+    if (age != null) animalData['age'] = age;
+    if (weight != null) animalData['weight'] = weight;
+    if (price != null) animalData['price'] = price;
+    if (addressLine1 != null) animalData['addressLine1'] = addressLine1;
+    if (city != null) animalData['city'] = city;
+    if (state != null) animalData['state'] = state;
+    if (pinCode != null) animalData['pinCode'] = pinCode;
+    if (mobileNumber != null) animalData['mobileNumber'] = mobileNumber;
+    if (uploadedUrls.isNotEmpty) animalData['uploadedUrls'] = uploadedUrls;
+
+    // Save the data to the database (Firebase Firestore example)
+    await FirebaseFirestore.instance.collection('animals').add(animalData);
   }
 }

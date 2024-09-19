@@ -26,7 +26,7 @@ class _LoginScreenState extends State<LoginScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-              AppLocalizations.of(context).translate('enter_email_password')),
+              AppLocalizations.of(context)!.translate('enter_email_password')),
           backgroundColor: Colors.red,
         ),
       );
@@ -44,7 +44,7 @@ class _LoginScreenState extends State<LoginScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(result['error'] ??
-              AppLocalizations.of(context).translate('login_failed')),
+              AppLocalizations.of(context)!.translate('login_failed')),
           backgroundColor: Colors.red,
         ),
       );
@@ -74,12 +74,12 @@ class _LoginScreenState extends State<LoginScreen> {
               const SizedBox(
                 height: 5,
               ),
-              Text(AppLocalizations.of(context).translate('app_title'),
+              Text(AppLocalizations.of(context)!.translate('app_title'),
                   style: GoogleFonts.archivoBlack(
                       fontSize: 28,
                       fontWeight: FontWeight.bold,
                       color: deepOne)),
-              Text(AppLocalizations.of(context).translate('app_subtitle'),
+              Text(AppLocalizations.of(context)!.translate('app_subtitle'),
                   style: GoogleFonts.zillaSlab(
                       color: deepOne,
                       fontSize: 18,
@@ -93,16 +93,18 @@ class _LoginScreenState extends State<LoginScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(AppLocalizations.of(context).translate('login'),
+              Text(AppLocalizations.of(context)!.translate('login'),
                   style: GoogleFonts.ptSans(
                       fontSize: 60,
                       fontWeight: FontWeight.bold,
                       color: deepOne)),
               const SizedBox(height: 20),
-              buildTextField(AppLocalizations.of(context).translate('email'),
+              buildTextField(AppLocalizations.of(context)!.translate('email'),
                   _emailController, false),
-              buildTextField(AppLocalizations.of(context).translate('password'),
-                  _passwordController, true),
+              buildTextField(
+                  AppLocalizations.of(context)!.translate('password'),
+                  _passwordController,
+                  true),
               buildForgotPasswordLink(),
               const SizedBox(height: 50),
               buildLoginButton(),
@@ -141,7 +143,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 border: InputBorder.none,
                 hintText: isPassword
                     ? '*******'
-                    : AppLocalizations.of(context)
+                    : AppLocalizations.of(context)!
                         .translate('enter_label')
                         .replaceFirst('{}', label),
                 contentPadding: const EdgeInsets.symmetric(horizontal: 15),
@@ -173,7 +175,7 @@ class _LoginScreenState extends State<LoginScreen> {
       alignment: Alignment.centerRight,
       child: InkWell(
         onTap: () {},
-        child: Text(AppLocalizations.of(context).translate('forgot_password'),
+        child: Text(AppLocalizations.of(context)!.translate('forgot_password'),
             style: GoogleFonts.zillaSlab(
                 color: deepOne, fontSize: 16, fontWeight: FontWeight.w600)),
       ),
@@ -189,7 +191,7 @@ class _LoginScreenState extends State<LoginScreen> {
           onPressed: performLogin,
           style:
               ElevatedButton.styleFrom(backgroundColor: deepOne, elevation: 5),
-          child: Text(AppLocalizations.of(context).translate('login'),
+          child: Text(AppLocalizations.of(context)!.translate('login'),
               style: GoogleFonts.ptSerif(fontSize: 24, color: Colors.white)),
         ),
       ),
@@ -200,7 +202,7 @@ class _LoginScreenState extends State<LoginScreen> {
     return Column(
       children: [
         DividerWithText(
-            text: AppLocalizations.of(context).translate('or_continue_with')),
+            text: AppLocalizations.of(context)!.translate('or_continue_with')),
         const SizedBox(
           height: 10,
         ),
@@ -222,12 +224,12 @@ class _LoginScreenState extends State<LoginScreen> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Text(AppLocalizations.of(context).translate('dont_have_account'),
+        Text(AppLocalizations.of(context)!.translate('dont_have_account'),
             style:
                 GoogleFonts.ptSans(fontWeight: FontWeight.w600, fontSize: 16)),
         InkWell(
           onTap: () => Navigator.pushReplacementNamed(context, '/signup'),
-          child: Text(AppLocalizations.of(context).translate('sign_up'),
+          child: Text(AppLocalizations.of(context)!.translate('sign_up'),
               style: GoogleFonts.ptSans(
                   fontWeight: FontWeight.w600,
                   fontSize: 16,

@@ -38,7 +38,6 @@ class _ForumPageState extends State<ForumPage> {
         },
         child: const Icon(Icons.add),
       ),
-
       backgroundColor: Colors.grey[100], // Light grey background
     );
   }
@@ -70,7 +69,7 @@ class _QuestionListState extends State<QuestionList> {
             DocumentSnapshot doc = snapshot.data!.docs[index];
             return QuestionListItem(
               title: doc['title'],
-              author: doc['author'],
+              author: doc['author'], // This is the user ID
               timestamp: doc['timestamp'],
               content: doc['content'],
               onTap: () {
@@ -92,18 +91,32 @@ class _QuestionListState extends State<QuestionList> {
 
 class QuestionListItem extends StatelessWidget {
   final String title;
-  final String author;
+  final String author; // This is the user ID
   final Timestamp timestamp;
   final String content;
   final VoidCallback onTap;
 
-  const QuestionListItem({super.key, 
+  const QuestionListItem({
+    super.key,
     required this.title,
     required this.author,
     required this.timestamp,
     required this.content,
     required this.onTap,
   });
+
+  // Fetch the full name based on the author (userId)
+  Future<String> _getAuthorName(String authorId) async {
+    DocumentSnapshot userSnapshot = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(authorId)
+        .get();
+
+    if (userSnapshot.exists) {
+      return userSnapshot['name']; // Return the full name from the 'name' field
+    }
+    return 'Unknown Author'; // If user data is not found
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -137,13 +150,24 @@ class QuestionListItem extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    author,
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.blue[700],
-                    ),
+                  FutureBuilder<String>(
+                    future: _getAuthorName(author), // Fetch the name field
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Text('Loading...'); // While fetching
+                      } else if (snapshot.hasError) {
+                        return const Text('Error'); // Handle error
+                      } else {
+                        return Text(
+                          snapshot.data ?? 'Unknown Author',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.blue[700],
+                          ),
+                        );
+                      }
+                    },
                   ),
                   Text(
                     DateFormat('MMM d, yyyy').format(timestamp.toDate()),
@@ -278,6 +302,19 @@ class QuestionDetails extends StatefulWidget {
 }
 
 class _QuestionDetailsState extends State<QuestionDetails> {
+  // Fetch the full name based on the author (userId)
+  Future<String> _getAuthorName(String authorId) async {
+    DocumentSnapshot userSnapshot = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(authorId)
+        .get();
+
+    if (userSnapshot.exists) {
+      return userSnapshot['name']; // Return the full name from the 'name' field
+    }
+    return 'Unknown Author'; // If user data is not found
+  }
+
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<DocumentSnapshot>(
@@ -291,6 +328,7 @@ class _QuestionDetailsState extends State<QuestionDetails> {
         }
 
         var questionData = snapshot.data!.data() as Map<String, dynamic>;
+        var authorId = questionData['author']; // This is the user ID
 
         return Card(
           margin: const EdgeInsets.all(8.0),
@@ -316,12 +354,23 @@ class _QuestionDetailsState extends State<QuestionDetails> {
                   ),
                 ),
                 const SizedBox(height: 8.0),
-                Text(
-                  'Asked by ${questionData['author']} on ${DateFormat('MMM d, yyyy').format(questionData['timestamp'].toDate())}',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey[500],
-                  ),
+                FutureBuilder<String>(
+                  future: _getAuthorName(authorId), // Fetch the name field
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Text('Loading author...');
+                    } else if (snapshot.hasError) {
+                      return const Text('Error fetching author');
+                    } else {
+                      return Text(
+                        'Asked by ${snapshot.data ?? 'Unknown Author'} on ${DateFormat('MMM d, yyyy').format(questionData['timestamp'].toDate())}',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.grey[500],
+                        ),
+                      );
+                    }
+                  },
                 ),
               ],
             ),
@@ -342,6 +391,46 @@ class ReplyList extends StatefulWidget {
 }
 
 class _ReplyListState extends State<ReplyList> {
+  String? loggedInUserId;
+
+  @override
+  void initState() {
+    super.initState();
+    _getLoggedInUser();
+  }
+
+  // Get the logged-in user's ID from shared preferences
+  Future<void> _getLoggedInUser() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      loggedInUserId = prefs
+          .getString('uid'); // Assuming 'uid' is stored for the logged-in user
+    });
+  }
+
+  // Fetch the full name based on the author (userId)
+  Future<String> _getAuthorName(String authorId) async {
+    DocumentSnapshot userSnapshot = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(authorId)
+        .get();
+
+    if (userSnapshot.exists) {
+      return userSnapshot['name']; // Return the full name from the 'name' field
+    }
+    return 'Unknown Author'; // If user data is not found
+  }
+
+  // Delete a reply by its document ID
+  Future<void> _deleteReply(String questionId, String replyId) async {
+    await FirebaseFirestore.instance
+        .collection('forum')
+        .doc(questionId)
+        .collection('replies')
+        .doc(replyId)
+        .delete();
+  }
+
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<QuerySnapshot>(
@@ -359,8 +448,10 @@ class _ReplyListState extends State<ReplyList> {
         return ListView.builder(
           itemCount: snapshot.data!.docs.length,
           itemBuilder: (context, index) {
-            var replyData =
-                snapshot.data!.docs[index].data() as Map<String, dynamic>;
+            var replyDoc = snapshot.data!.docs[index];
+            var replyData = replyDoc.data() as Map<String, dynamic>;
+            var replyId = replyDoc.id;
+            var authorId = replyData['author'];
 
             // Handle the case where the timestamp might be null
             var timestamp = replyData['timestamp'] as Timestamp?;
@@ -369,23 +460,82 @@ class _ReplyListState extends State<ReplyList> {
                 : 'Unknown date';
 
             return Card(
-              margin: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0),
+              margin:
+                  const EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0),
               child: Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(replyData['text']),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          replyData['text'],
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        if (authorId == loggedInUserId)
+                          IconButton(
+                            icon: Icon(Icons.delete, color: Colors.red),
+                            onPressed: () {
+                              _showDeleteConfirmationDialog(context, replyId);
+                            },
+                          ),
+                      ],
+                    ),
                     const SizedBox(height: 4.0),
-                    Text(
-                      'Replied by ${replyData['author']} on $formattedTimestamp',
-                      style: const TextStyle(color: Colors.grey),
+                    FutureBuilder<String>(
+                      future: _getAuthorName(
+                          authorId), // Fetch full name from 'author'
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return const Text('Loading...');
+                        } else if (snapshot.hasError) {
+                          return const Text('Error');
+                        } else {
+                          return Text(
+                            'Replied by ${snapshot.data ?? 'Unknown Author'} on $formattedTimestamp',
+                            style: const TextStyle(color: Colors.grey),
+                          );
+                        }
+                      },
                     ),
                   ],
                 ),
               ),
             );
           },
+        );
+      },
+    );
+  }
+
+  // Show a confirmation dialog before deleting the reply
+  void _showDeleteConfirmationDialog(BuildContext context, String replyId) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Delete Reply'),
+          content: const Text('Are you sure you want to delete this reply?'),
+          actions: [
+            TextButton(
+              child: const Text('Cancel'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: const Text('Delete'),
+              onPressed: () {
+                _deleteReply(widget.questionId, replyId);
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
         );
       },
     );

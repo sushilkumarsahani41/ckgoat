@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:ckgoat/main.dart';
+import 'package:whatsapp/whatsapp.dart';
 
 class AnimalPage extends StatefulWidget {
   final String animalId;
@@ -41,11 +43,37 @@ class _AnimalPageState extends State<AnimalPage> {
     }
   }
 
+  // Function to convert age in months to years and months
+  String formatAge(int ageInMonths) {
+    int years = ageInMonths ~/ 12;
+    int months = ageInMonths % 12;
+    String formattedAge = '';
+
+    if (years > 0) {
+      formattedAge = '$years years';
+    }
+
+    if (months > 0) {
+      if (formattedAge.isNotEmpty) {
+        formattedAge += ' and ';
+      }
+      formattedAge += '$months months';
+    }
+
+    if (formattedAge.isEmpty) {
+      formattedAge = 'less than a month';
+    }
+
+    return formattedAge;
+  }
+
   @override
   Widget build(BuildContext context) {
+    final AppLocalizations localizations = AppLocalizations.of(context)!;
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Product Page'),
+        title: Text(localizations.translate('animal_title')),
         backgroundColor: Colors.deepOrange,
       ),
       body: animalData == null
@@ -120,82 +148,182 @@ class _AnimalPageState extends State<AnimalPage> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(
-                                  animalData?['title'] ?? 'No title',
-                                  style: const TextStyle(
-                                      fontSize: 24,
-                                      fontWeight: FontWeight.bold),
-                                ),
+                                if (animalData?['title'] != null)
+                                  Text(
+                                    animalData?['title'] ??
+                                        localizations
+                                            .translate('animal_no_title'),
+                                    style: const TextStyle(
+                                        fontSize: 24,
+                                        fontWeight: FontWeight.bold),
+                                  ),
                                 const SizedBox(height: 10),
-                                Row(
-                                  children: [
-                                    const Icon(Icons.location_on, color: Colors.grey),
-                                    const SizedBox(width: 5),
-                                    Text(
-                                        '${animalData?['addressLine1']}, ${animalData?['city']}',
-                                        style: const TextStyle(fontSize: 16)),
-                                  ],
-                                ),
+                                if (animalData?['animalType'] != null)
+                                  Row(
+                                    children: [
+                                      const Icon(Icons.pets,
+                                          color: Colors.grey),
+                                      const SizedBox(width: 5),
+                                      Text(
+                                        '${localizations.translate('animal_animal_type')}: ${localizations.translate(animalData!['animalType'].toLowerCase())}',
+                                        style: const TextStyle(fontSize: 16),
+                                      ),
+                                    ],
+                                  ),
                                 const SizedBox(height: 10),
-                                Row(
-                                  children: [
-                                    const Icon(Icons.calendar_today,
-                                        color: Colors.grey),
-                                    const SizedBox(width: 5),
-                                    Text('Age: ${animalData?['age']}',
-                                        style: const TextStyle(fontSize: 16)),
-                                  ],
-                                ),
+                                if (animalData?['breed'] != null)
+                                  Row(
+                                    children: [
+                                      const Icon(Icons.pets,
+                                          color: Colors.grey),
+                                      const SizedBox(width: 5),
+                                      Text(
+                                        '${localizations.translate('animal_breed')}: ${localizations.translate(animalData?['breed'])}',
+                                        style: const TextStyle(fontSize: 16),
+                                      ),
+                                    ],
+                                  ),
                                 const SizedBox(height: 10),
-                                Row(
-                                  children: [
-                                    const Icon(Icons.phone, color: Colors.grey),
-                                    const SizedBox(width: 5),
-                                    Text('${animalData?['mobileNumber']}',
-                                        style: const TextStyle(fontSize: 16)),
-                                  ],
-                                ),
+                                if (animalData?['gender'] != null)
+                                  Row(
+                                    children: [
+                                      const Icon(Icons.wc, color: Colors.grey),
+                                      const SizedBox(width: 5),
+                                      Text(
+                                        '${localizations.translate('animal_gender')}: ${localizations.translate(animalData!['gender'].toLowerCase())}',
+                                        style: const TextStyle(fontSize: 16),
+                                      ),
+                                    ],
+                                  ),
                                 const SizedBox(height: 10),
-                                Row(
-                                  children: [
-                                    const Icon(Icons.pets, color: Colors.grey),
-                                    const SizedBox(width: 5),
-                                    Text('Breed Info: ${animalData?['breed']}',
-                                        style: const TextStyle(fontSize: 16)),
-                                  ],
-                                ),
+                                if (animalData?['age'] != null)
+                                  Row(
+                                    children: [
+                                      const Icon(Icons.calendar_today,
+                                          color: Colors.grey),
+                                      const SizedBox(width: 5),
+                                      Text(
+                                        '${localizations.translate('animal_age')}: ${formatAge(animalData?['age'])}',
+                                        style: const TextStyle(fontSize: 16),
+                                      ),
+                                    ],
+                                  ),
                                 const SizedBox(height: 10),
-                                Row(
-                                  children: [
-                                    const Icon(Icons.scale, color: Colors.grey),
-                                    const SizedBox(width: 5),
-                                    Text('Weight: ${animalData?['weight']} kg',
-                                        style: const TextStyle(fontSize: 16)),
-                                  ],
-                                ),
+                                if (animalData?['lactation'] != null)
+                                  Row(
+                                    children: [
+                                      const Icon(Icons.replay,
+                                          color: Colors.grey),
+                                      const SizedBox(width: 5),
+                                      Text(
+                                        '${localizations.translate('animal_lactation')}: ${animalData?['lactation']}',
+                                        style: const TextStyle(fontSize: 16),
+                                      ),
+                                    ],
+                                  ),
                                 const SizedBox(height: 10),
-                                Row(
-                                  children: [
-                                    const Icon(Icons.attach_money,
-                                        color: Colors.grey),
-                                    const SizedBox(width: 5),
-                                    Text('Price: \$${animalData?['price']}',
-                                        style: const TextStyle(fontSize: 16)),
-                                  ],
-                                ),
+                                if (animalData?['milkCapacity'] != null)
+                                  Row(
+                                    children: [
+                                      const Icon(Icons.local_drink,
+                                          color: Colors.grey),
+                                      const SizedBox(width: 5),
+                                      Text(
+                                        '${localizations.translate('animal_milk_capacity')}: ${animalData?['milkCapacity']}L',
+                                        style: const TextStyle(fontSize: 16),
+                                      ),
+                                    ],
+                                  ),
                                 const SizedBox(height: 10),
-                                const Text(
-                                  'Description:',
-                                  style: TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold),
-                                ),
-                                const SizedBox(height: 5),
-                                Text(
-                                  animalData?['description'] ??
-                                      'No description',
-                                  style: const TextStyle(fontSize: 16),
-                                ),
+                                if (animalData?['weight'] != null)
+                                  Row(
+                                    children: [
+                                      const Icon(Icons.scale,
+                                          color: Colors.grey),
+                                      const SizedBox(width: 5),
+                                      Text(
+                                        '${localizations.translate('animal_weight')}: ${animalData?['weight']} kg',
+                                        style: const TextStyle(fontSize: 16),
+                                      ),
+                                    ],
+                                  ),
+                                const SizedBox(height: 10),
+                                if (animalData?['price'] != null)
+                                  Row(
+                                    children: [
+                                      const Icon(Icons.attach_money,
+                                          color: Colors.grey),
+                                      const SizedBox(width: 5),
+                                      Text(
+                                        '${localizations.translate('animal_price')}: ₹${animalData?['price']}',
+                                        style: const TextStyle(fontSize: 16),
+                                      ),
+                                    ],
+                                  ),
+                                const SizedBox(height: 10),
+                                if (animalData?['address'] != null)
+                                  Row(
+                                    children: [
+                                      const Icon(Icons.location_on,
+                                          color: Colors.grey),
+                                      const SizedBox(width: 5),
+                                      Text(
+                                        '${localizations.translate('animal_address')}: ${animalData?['address']}',
+                                        style: const TextStyle(fontSize: 16),
+                                      ),
+                                    ],
+                                  ),
+                                const SizedBox(height: 10),
+                                if (animalData?['city'] != null)
+                                  Row(
+                                    children: [
+                                      const Icon(Icons.location_city,
+                                          color: Colors.grey),
+                                      const SizedBox(width: 5),
+                                      Text(
+                                        '${localizations.translate('animal_city')}: ${animalData?['city']}',
+                                        style: const TextStyle(fontSize: 16),
+                                      ),
+                                    ],
+                                  ),
+                                const SizedBox(height: 10),
+                                if (animalData?['state'] != null)
+                                  Row(
+                                    children: [
+                                      const Icon(Icons.map, color: Colors.grey),
+                                      const SizedBox(width: 5),
+                                      Text(
+                                        '${localizations.translate('animal_state')}: ${animalData?['state']}',
+                                        style: const TextStyle(fontSize: 16),
+                                      ),
+                                    ],
+                                  ),
+                                const SizedBox(height: 10),
+                                if (animalData?['pinCode'] != null)
+                                  Row(
+                                    children: [
+                                      const Icon(Icons.local_post_office,
+                                          color: Colors.grey),
+                                      const SizedBox(width: 5),
+                                      Text(
+                                        '${localizations.translate('animal_pincode')}: ${animalData?['pinCode']}',
+                                        style: const TextStyle(fontSize: 16),
+                                      ),
+                                    ],
+                                  ),
+                                const SizedBox(height: 10),
+                                if (animalData?['mobileNumber'] != null)
+                                  Row(
+                                    children: [
+                                      const Icon(Icons.phone,
+                                          color: Colors.grey),
+                                      const SizedBox(width: 5),
+                                      Text(
+                                        '${localizations.translate('animal_mobile')}: ${animalData?['mobileNumber']}',
+                                        style: const TextStyle(fontSize: 16),
+                                      ),
+                                    ],
+                                  ),
                               ],
                             ),
                           ),
@@ -232,8 +360,10 @@ class _AnimalPageState extends State<AnimalPage> {
                             _handleCallNow();
                           },
                           icon: const Icon(Icons.phone),
-                          label: const Text('Call Now'),
+                          label:
+                              Text(localizations.translate('animal_call_now')),
                           style: ElevatedButton.styleFrom(
+                            foregroundColor: Colors.white,
                             backgroundColor: Colors.deepOrange,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(10),
@@ -248,8 +378,9 @@ class _AnimalPageState extends State<AnimalPage> {
                             _handleWhatsApp();
                           },
                           icon: const Icon(Icons.message),
-                          label: const Text('WhatsApp'),
+                          label: Text('WhatsApp'),
                           style: ElevatedButton.styleFrom(
+                            foregroundColor: Colors.white,
                             backgroundColor: Colors.green,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(10),
@@ -280,24 +411,32 @@ class _AnimalPageState extends State<AnimalPage> {
   }
 
   void _handleCallNow() {
-    // Implement call logic here
-    print('Calling Now...');
     _makePhoneCall('+91${animalData?['mobileNumber']}');
   }
 
-  launchWhatsappWithMobileNumber(mobileNumber, message) async {
-    final url = "https://api.whatsapp.com/send?phone=$mobileNumber";
-    print(url);
-    if (await canLaunchUrl(Uri.parse(Uri.encodeFull(url)))) {
-      await launchUrl(Uri.parse(Uri.encodeFull(url)));
+  launchWhatsappWithMobileNumber(String mobileNumber, String message) async {
+    final whatsappAppUrl =
+        "whatsapp://send?phone=$mobileNumber&text=${Uri.encodeComponent(message)}";
+
+    final whatsappWebUrl =
+        "https://api.whatsapp.com/send?phone=$mobileNumber&text=${Uri.encodeComponent(message)}";
+
+    if (await canLaunchUrl(Uri.parse(whatsappAppUrl))) {
+      await launchUrl(
+        Uri.parse(whatsappAppUrl),
+        mode: LaunchMode.externalApplication,
+      );
+    } else if (await canLaunchUrl(Uri.parse(whatsappWebUrl))) {
+      await launchUrl(
+        Uri.parse(whatsappWebUrl),
+        mode: LaunchMode.externalNonBrowserApplication,
+      );
     } else {
-      throw 'Could not launch $url';
+      print('Could not launch WhatsApp');
     }
   }
 
-  void _handleWhatsApp() {
-    // Implement WhatsApp message logic here
-    print('Sending WhatsApp Message...');
+  void _handleWhatsApp() async {
     launchWhatsappWithMobileNumber('91${animalData?['mobileNumber']}', "Hello");
   }
 }
