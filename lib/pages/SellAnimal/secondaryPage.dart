@@ -65,7 +65,7 @@ class _SecondaryInfoPageState extends State<SecondaryInfoPage> {
       isPinCodeValid = false;
     });
 
-    final apiUrl = 'http://api.ckgoat.greatshark.in/location/pincode/$pincode';
+    final apiUrl = 'https://api.ckgoat.greatshark.in/location/pincode/$pincode';
     try {
       final response = await http.get(Uri.parse(apiUrl));
       if (response.statusCode == 200) {

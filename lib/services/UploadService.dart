@@ -5,7 +5,7 @@ import 'dart:io';
 
 class UploadService {
   // Updated endpoint and Bearer Token
-  final String uploadUrl = 'https://api.ckgoat.greatshark.tech/storage/upload/';
+  final String uploadUrl = 'https://api.ckgoat.greatshark.in/storage/upload/';
   final String bearerToken =
       'gCW0z7uTiZqbNwoYQsDvE2gAPxdHfXciazPmCzPneXpn444glZ'; // Your actual Bearer token
 

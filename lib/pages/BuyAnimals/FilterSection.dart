@@ -1,11 +1,13 @@
 import 'dart:convert';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:ckgoat/main.dart';
+import 'package:ckgoat/pages/SellAnimal/FormPage.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:geocoding_resolver/geocoding_resolver.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:ckgoat/pages/BuyAnimals/AnimalPage.dart';
 
 class FilterSection extends StatefulWidget {
@@ -16,6 +18,7 @@ class FilterSection extends StatefulWidget {
 }
 
 class _FilterSectionState extends State<FilterSection> {
+  List favorites = [];
   String selectedCity = 'All India';
   String? selectedAnimalType = 'All';
   String? city;
@@ -34,116 +37,394 @@ class _FilterSectionState extends State<FilterSection> {
   ];
   final TextEditingController pincodeController = TextEditingController();
 
-  void showLocationDialog(BuildContext context) {
-    TextEditingController pincodeController = TextEditingController();
-    GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  // Pagination-related variables
+  final ScrollController _scrollController = ScrollController();
+  List<DocumentSnapshot> animalDocs = [];
+  bool isFetchingMore = false;
+  bool hasMore = true; // To check if there are more documents to load
+  DocumentSnapshot?
+      lastDocument; // Track the last document from the previous batch
+  int documentLimit = 10; // Number of documents to fetch per request
 
-    showDialog(
+  @override
+  void initState() {
+    super.initState();
+    _fetchAnimals(); // Initial fetch
+    _scrollController.addListener(() {
+      if (_scrollController.position.pixels ==
+              _scrollController.position.maxScrollExtent &&
+          !isFetchingMore) {
+        _fetchMoreAnimals(); // Fetch more animals when scrolled to the bottom
+      }
+    });
+    fetchFav();
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  // Initial data fetch
+  Future<void> _fetchAnimals() async {
+    Query query = FirebaseFirestore.instance
+        .collection('animals')
+        .limit(documentLimit); // Fetch only 'documentLimit' documents
+
+    if (selectedCity != 'All India' && city != null) {
+      query = query.where('city', isEqualTo: city);
+    }
+
+    if (selectedAnimalType != "All") {
+      query = query.where('animalType', isEqualTo: selectedAnimalType);
+    }
+
+    setState(() {
+      isLoading = true;
+    });
+
+    QuerySnapshot querySnapshot = await query.get();
+
+    if (querySnapshot.docs.isNotEmpty) {
+      setState(() {
+        animalDocs = querySnapshot.docs;
+        lastDocument = querySnapshot.docs.last; // Save the last document
+        hasMore = querySnapshot.docs.length ==
+            documentLimit; // Check if there are more documents
+        isLoading = false;
+      });
+    } else {
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+
+  // Show the bottom sheet to select an animal type
+  void _showAnimalTypeSelection(BuildContext context) {
+    showModalBottomSheet(
       context: context,
-      barrierDismissible: true,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20.0),
-          ),
-          title: Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              Icon(Icons.location_city, color: Colors.deepOrange),
-              SizedBox(width: 10),
-              Text(
-                  AppLocalizations.of(context)!
-                      .translate('flsec_select_location'),
-                  style: TextStyle(color: Colors.deepOrange)),
-            ],
-          ),
-          content: StatefulBuilder(
-            builder: (BuildContext context, StateSetter setStateDialog) {
-              return Form(
-                key: _formKey,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    TextFormField(
-                      maxLength: 6,
-                      controller: pincodeController,
-                      decoration: InputDecoration(
-                        hintText: AppLocalizations.of(context)!
-                            .translate('flsec_enter_pincode'),
-                        suffixIcon: IconButton(
-                          icon: Icon(Icons.search, color: Colors.deepOrange),
-                          onPressed: () {
-                            if (_formKey.currentState!.validate()) {
-                              _fetchLocationData(
-                                  pincodeController.text, setStateDialog);
-                            }
-                          },
-                        ),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(20.0),
-                        ),
-                      ),
-                      autovalidateMode: AutovalidateMode.onUserInteraction,
-                      validator: (value) {
-                        if (value!.isEmpty || value.length != 6) {
-                          return AppLocalizations.of(context)!
-                              .translate('flsec_invalid_pincode');
-                        }
-                        return null;
-                      },
-                    ),
-                    SizedBox(height: 20),
-                    if (isLoading)
-                      CircularProgressIndicator(color: Colors.deepOrange),
-                    if (city != null && state != null)
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Text('$city, $state',
-                            style: TextStyle(
-                                fontSize: 16,
-                                color: Colors.deepOrange,
-                                decoration: TextDecoration.underline)),
-                      ),
-                    SizedBox(height: 10),
-                    if (locationLoading)
-                      CircularProgressIndicator(color: Colors.deepOrange),
-                    if (!locationLoading)
-                      ElevatedButton.icon(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.deepOrange,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20.0),
-                          ),
-                        ),
-                        icon: Icon(Icons.my_location, color: Colors.white),
-                        label: Text(
-                            AppLocalizations.of(context)!
-                                .translate('flsec_use_current_location'),
-                            style: TextStyle(color: Colors.white)),
-                        onPressed: () {
-                          setStateDialog(() {
-                            locationLoading = true;
-                          });
-                          _getCurrentLocation(setStateDialog);
-                        },
-                      ),
-                  ],
+      builder: (context) {
+        final AppLocalizations localizations = AppLocalizations.of(context)!;
+        return Padding(
+          padding: EdgeInsets.all(16.0),
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                SizedBox(
+                  height: 10,
                 ),
-              );
-            },
-          ),
-          actions: [
-            TextButton(
-              child: Text(
-                  AppLocalizations.of(context)!.translate('flsec_cancel'),
-                  style: TextStyle(color: Colors.deepOrange)),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
+                Align(
+                  alignment: Alignment.center,
+                  child: Text(
+                    localizations.translate('initial_select_animal_type'),
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 20,
+                    ),
+                  ),
+                ),
+                AnimalTypeButton('All', "None"),
+                AnimalTypeButton("Cow", 'assets/cow.png'),
+                AnimalTypeButton("Buffalo", 'assets/buffalo.png'),
+                AnimalTypeButton("Sheep", 'assets/sheep.png'),
+                AnimalTypeButton("Goat", 'assets/goat.png'),
+                AnimalTypeButton("Horse", 'assets/horse.png'),
+                AnimalTypeButton("Birds", 'assets/bird.png'),
+              ],
             ),
-          ],
+          ),
         );
       },
+    );
+  }
+
+  Widget AnimalTypeButton(animal, imagePath) {
+    final AppLocalizations localizations = AppLocalizations.of(context)!;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: ElevatedButton(
+        style: ElevatedButton.styleFrom(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 5),
+          backgroundColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10.0),
+          ),
+          elevation: 0,
+          side: const BorderSide(color: Colors.deepOrange, width: 1.5),
+        ),
+        onPressed: () {
+          setState(() {
+            selectedAnimalType = animal;
+            _fetchAnimals(); // Refresh data based on selection
+          });
+          Navigator.pop(context);
+        },
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(localizations.translate(animal.toLowerCase()),
+                style: const TextStyle(fontSize: 18, color: Colors.deepOrange)),
+            (imagePath != "None")
+                ? Image.asset(imagePath, height: 80)
+                : Container(),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // Fetch more data when scrolling to the bottom
+  Future<void> _fetchMoreAnimals() async {
+    if (!hasMore) {
+      return;
+    }
+
+    Query query = FirebaseFirestore.instance
+        .collection('animals')
+        .limit(documentLimit)
+        .startAfterDocument(
+            lastDocument!); // Continue after last fetched document
+
+    if (selectedCity != 'All India' && city != null) {
+      query = query.where('city', isEqualTo: city);
+    }
+
+    if (selectedAnimalType != "All") {
+      query = query.where('animalType', isEqualTo: selectedAnimalType);
+    }
+
+    setState(() {
+      isFetchingMore = true;
+    });
+
+    QuerySnapshot querySnapshot = await query.get();
+
+    if (querySnapshot.docs.isNotEmpty) {
+      setState(() {
+        animalDocs.addAll(querySnapshot.docs); // Add new documents to the list
+        lastDocument = querySnapshot.docs.last; // Save the new last document
+        hasMore = querySnapshot.docs.length ==
+            documentLimit; // Check if there are more documents
+        isFetchingMore = false;
+      });
+    } else {
+      setState(() {
+        isFetchingMore = false;
+      });
+    }
+  }
+
+  // UI Code
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  const Icon(Icons.location_on),
+                  SizedBox(width: 10),
+                  Text(
+                    AppLocalizations.of(context)!
+                        .translate('flsec_select_location'),
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+              ElevatedButton(
+                onPressed: () => showLocationDialog(context),
+                child: Text(selectedCity),
+              ),
+            ],
+          ),
+          const SizedBox(height: 5),
+          // Animal type selection button
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  const Icon(Icons.pets),
+                  SizedBox(width: 10),
+                  Text(
+                    AppLocalizations.of(context)!
+                        .translate('initial_select_animal_type'),
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(
+                // width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () => _showAnimalTypeSelection(context),
+                  child: Text(
+                    AppLocalizations.of(context)!
+                        .translate(selectedAnimalType!.toLowerCase()),
+                    style: const TextStyle(color: Colors.white),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.deepOrange,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Expanded(
+            child: isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : GridView.builder(
+                    controller: _scrollController,
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                            mainAxisExtent: 230,
+                            mainAxisSpacing: 15,
+                            crossAxisCount: 2,
+                            crossAxisSpacing: 15),
+                    itemCount: animalDocs.length + (isFetchingMore ? 1 : 0),
+                    itemBuilder: (context, index) {
+                      if (index == animalDocs.length) {
+                        return const Center(
+                          child: CircularProgressIndicator(),
+                        );
+                      }
+
+                      final doc = animalDocs[index];
+                      final data = doc.data() as Map<String, dynamic>;
+
+                      final imageUrls =
+                          data['uploadedUrls'] as List<dynamic>? ?? [];
+                      final firstImageUrl =
+                          imageUrls.isNotEmpty ? imageUrls[0] as String : null;
+
+                      return GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  AnimalPage(animalId: doc.id),
+                            ),
+                          );
+                        },
+                        child: Stack(
+                          alignment: Alignment.center,
+                          children: [
+                            Container(
+                              decoration: BoxDecoration(
+                                color: Colors.blue,
+                                boxShadow: const [
+                                  BoxShadow(
+                                    color: Colors.black12,
+                                    blurRadius: 10,
+                                    offset: Offset(0, 5),
+                                  ),
+                                ],
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  ClipRRect(
+                                    borderRadius: const BorderRadius.only(
+                                        topLeft: Radius.circular(10),
+                                        topRight: Radius.circular(10)),
+                                    child: SizedBox(
+                                      height: 150,
+                                      width: double.infinity,
+                                      child: CachedNetworkImage(
+                                        imageUrl: firstImageUrl!,
+                                        fit: BoxFit.cover,
+                                        height: 150,
+                                        width: double.infinity,
+                                        placeholder: (context, url) =>
+                                            const Center(
+                                          child: CircularProgressIndicator(
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                        errorWidget: (context, url, error) =>
+                                            const Icon(
+                                          Icons.error_outline,
+                                          color: Colors.red,
+                                          size: 40,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          maxLines: 3,
+                                          generateTitle(context, data),
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            overflow: TextOverflow.ellipsis,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Positioned(
+                              right: 10,
+                              bottom: 70,
+                              child: Container(
+                                width: 40,
+                                decoration: const BoxDecoration(boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black12,
+                                    blurRadius: 10,
+                                    offset: Offset(0, 5),
+                                  ),
+                                ], shape: BoxShape.circle, color: Colors.white),
+                                child: IconButton(
+                                  icon: Icon(
+                                    isFavorite(doc.id)
+                                        ? Icons.favorite
+                                        : Icons.favorite_border,
+                                    color: isFavorite(doc.id)
+                                        ? Colors.red
+                                        : Colors.grey,
+                                  ),
+                                  onPressed: () {
+                                    toggleFavorite(doc.id);
+                                  },
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -308,213 +589,170 @@ class _FilterSectionState extends State<FilterSection> {
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    Query query = FirebaseFirestore.instance.collection('animals');
+  void showLocationDialog(BuildContext context) {
+    TextEditingController pincodeController = TextEditingController();
+    GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
-    if (selectedCity != 'All India') {
-      query = query.where('city', isEqualTo: city);
-    }
-
-    if (selectedAnimalType != "All") {
-      query = query.where('animalType', isEqualTo: selectedAnimalType);
-    }
-
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20.0),
+          ),
+          title: Row(
+            mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              const Icon(Icons.location_on),
+              Icon(Icons.location_city, color: Colors.deepOrange),
               SizedBox(width: 10),
-              ElevatedButton(
-                onPressed: () => showLocationDialog(context),
-                child: Text(selectedCity),
-              ),
+              Text(
+                  AppLocalizations.of(context)!
+                      .translate('flsec_select_location'),
+                  style: TextStyle(color: Colors.deepOrange)),
             ],
           ),
-          const SizedBox(height: 16),
-          SizedBox(
-            height: 30,
-            child: ListView(
-              scrollDirection: Axis.horizontal,
-              children: animalTypes.map((String type) {
-                bool isSelected = selectedAnimalType == type;
-                return Padding(
-                  padding: const EdgeInsets.only(right: 8.0),
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      foregroundColor: Colors.white,
-                      backgroundColor:
-                          isSelected ? Colors.deepOrange : Colors.blue,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(15),
+          content: StatefulBuilder(
+            builder: (BuildContext context, StateSetter setStateDialog) {
+              return Form(
+                key: _formKey,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    TextFormField(
+                      maxLength: 6,
+                      controller: pincodeController,
+                      decoration: InputDecoration(
+                        hintText: AppLocalizations.of(context)!
+                            .translate('flsec_enter_pincode'),
+                        suffixIcon: IconButton(
+                          icon: Icon(Icons.search, color: Colors.deepOrange),
+                          onPressed: () {
+                            if (_formKey.currentState!.validate()) {
+                              _fetchLocationData(
+                                  pincodeController.text, setStateDialog);
+                            }
+                          },
+                        ),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(20.0),
+                        ),
                       ),
-                    ),
-                    onPressed: () {
-                      setState(() {
-                        selectedAnimalType = type;
-                      });
-                    },
-                    child: Text(AppLocalizations.of(context)!
-                        .translate(type.toLowerCase())),
-                  ),
-                );
-              }).toList(),
-            ),
-          ),
-          const SizedBox(height: 10),
-          Expanded(
-            child: StreamBuilder<QuerySnapshot>(
-              stream: query.snapshots(),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
-                }
-                if (snapshot.hasError) {
-                  return Center(
-                      child: Text(AppLocalizations.of(context)!
-                          .translate('flsec_error')));
-                }
-                if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                  return Center(
-                      child: Text(AppLocalizations.of(context)!
-                          .translate('flsec_no_animals_found')));
-                }
-
-                return GridView.builder(
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                      mainAxisExtent: 230,
-                      mainAxisSpacing: 15,
-                      crossAxisCount: 2,
-                      crossAxisSpacing: 15),
-                  itemCount: snapshot.data!.docs.length,
-                  itemBuilder: (context, index) {
-                    final doc = snapshot.data!.docs[index];
-                    final data = doc.data() as Map<String, dynamic>;
-
-                    final imageUrls =
-                        data['uploadedUrls'] as List<dynamic>? ?? [];
-                    final firstImageUrl =
-                        imageUrls.isNotEmpty ? imageUrls[0] as String : null;
-
-                    return GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => AnimalPage(animalId: doc.id),
-                          ),
-                        );
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
+                      validator: (value) {
+                        if (value!.isEmpty || value.length != 6) {
+                          return AppLocalizations.of(context)!
+                              .translate('flsec_invalid_pincode');
+                        }
+                        return null;
                       },
-                      child: Stack(
-                        alignment: Alignment.center,
-                        children: [
-                          Container(
-                            decoration: BoxDecoration(
-                              color: Colors.blue,
-                              boxShadow: const [
-                                BoxShadow(
-                                  color: Colors.black12,
-                                  blurRadius: 10,
-                                  offset: Offset(0, 5),
-                                ),
-                              ],
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                ClipRRect(
-                                  borderRadius: const BorderRadius.only(
-                                      topLeft: Radius.circular(10),
-                                      topRight: Radius.circular(10)),
-                                  child: SizedBox(
-                                    height:
-                                        150, // Fixed height to prevent layout shifting
-                                    width: double
-                                        .infinity, // Full width for the image container
-                                    child: Stack(
-                                      alignment:
-                                          Alignment.center, // Center the loader
-                                      children: [
-                                        CachedNetworkImage(
-                                          imageUrl: firstImageUrl!,
-                                          fit: BoxFit.cover,
-                                          height: 150,
-                                          width: double.infinity,
-                                          placeholder: (context, url) =>
-                                              const Center(
-                                            child: CircularProgressIndicator(
-                                              color: Colors.white,
-                                            ),
-                                          ),
-                                          errorWidget: (context, url, error) =>
-                                              const Icon(
-                                            Icons.error_outline,
-                                            color: Colors.red,
-                                            size: 40,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        maxLines: 3,
-                                        generateTitle(context, data),
-                                        style: const TextStyle(
-                                          color: Colors.white,
-                                          overflow: TextOverflow.ellipsis,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          Positioned(
-                            right: 10,
-                            bottom: 70,
-                            child: Container(
-                              width: 40,
-                              decoration: const BoxDecoration(boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black12,
-                                  blurRadius: 10,
-                                  offset: Offset(0, 5),
-                                ),
-                              ], shape: BoxShape.circle, color: Colors.white),
-                              child: IconButton(
-                                icon: const Icon(
-                                  Icons.favorite_outline,
-                                  color: Colors.black45,
-                                ),
-                                onPressed: () {},
-                              ),
-                            ),
-                          ),
-                        ],
+                    ),
+                    SizedBox(height: 20),
+                    if (isLoading)
+                      CircularProgressIndicator(color: Colors.deepOrange),
+                    if (city != null && state != null)
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text('$city, $state',
+                            style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.deepOrange,
+                                decoration: TextDecoration.underline)),
                       ),
-                    );
-                  },
-                );
+                    SizedBox(height: 10),
+                    if (locationLoading)
+                      CircularProgressIndicator(color: Colors.deepOrange),
+                    if (!locationLoading)
+                      ElevatedButton.icon(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.deepOrange,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20.0),
+                          ),
+                        ),
+                        icon: Icon(Icons.my_location, color: Colors.white),
+                        label: Text(
+                            AppLocalizations.of(context)!
+                                .translate('flsec_use_current_location'),
+                            style: TextStyle(color: Colors.white)),
+                        onPressed: () {
+                          setStateDialog(() {
+                            locationLoading = true;
+                          });
+                          _getCurrentLocation(setStateDialog);
+                        },
+                      ),
+                  ],
+                ),
+              );
+            },
+          ),
+          actions: [
+            TextButton(
+              child: Text(
+                  AppLocalizations.of(context)!.translate('flsec_cancel'),
+                  style: TextStyle(color: Colors.deepOrange)),
+              onPressed: () {
+                Navigator.of(context).pop();
               },
             ),
-          ),
-        ],
-      ),
+          ],
+        );
+      },
     );
+  }
+
+  Future<void> toggleFavorite(String animalId) async {
+    // Get current user
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+
+    DocumentReference userDocRef =
+        FirebaseFirestore.instance.collection('users').doc(user.uid);
+    DocumentSnapshot userDoc = await userDocRef.get();
+
+    // Cast the document data to Map<String, dynamic>
+    setState(() {
+      favorites = (userDoc.data() as Map<String, dynamic>)['favorites'] ?? [];
+    });
+
+    if (favorites.contains(animalId)) {
+      // Remove from favorites
+      await userDocRef.update({
+        'favorites': FieldValue.arrayRemove([animalId])
+      });
+      setState(() {
+        favorites.remove(animalId);
+      });
+    } else {
+      // Add to favorites
+      await userDocRef.update({
+        'favorites': FieldValue.arrayUnion([animalId])
+      });
+      setState(() {
+        favorites.add(animalId);
+      });
+    }
+  }
+
+  Future<void> fetchFav() async {
+    // Get current user
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+
+    DocumentReference userDocRef =
+        FirebaseFirestore.instance.collection('users').doc(user.uid);
+    DocumentSnapshot userDoc = await userDocRef.get();
+
+    // Cast the document data to Map<String, dynamic>
+    setState(() {
+      favorites = (userDoc.data() as Map<String, dynamic>)['favorites'] ?? [];
+    });
+  }
+
+  bool isFavorite(
+    String animalId,
+  ) {
+    return favorites.contains(animalId);
   }
 }
