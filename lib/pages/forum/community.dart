@@ -1,12 +1,12 @@
 import 'package:ckgoat/pages/forum/addquestion.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:intl/date_symbol_data_local.dart';
-import 'package:intl/date_time_patterns.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ForumPage extends StatefulWidget {
+  const ForumPage({super.key});
+
   @override
   State<ForumPage> createState() => _ForumPageState();
 }
@@ -16,35 +16,36 @@ class _ForumPageState extends State<ForumPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Forum'),
+        title: const Text('Forum'),
         elevation: 0,
         actions: [
           IconButton(
-            icon: Icon(Icons.search),
+            icon: const Icon(Icons.search),
             onPressed: () {
               // Implement search functionality
             },
           ),
         ],
       ),
-      body: QuestionList(),
+      body: const QuestionList(),
       floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.add),
         backgroundColor: Colors.deepOrange,
         onPressed: () {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => AddQuestionPage()),
+            MaterialPageRoute(builder: (context) => const AddQuestionPage()),
           );
         },
+        child: const Icon(Icons.add),
       ),
-
       backgroundColor: Colors.grey[100], // Light grey background
     );
   }
 }
 
 class QuestionList extends StatefulWidget {
+  const QuestionList({super.key});
+
   @override
   State<QuestionList> createState() => _QuestionListState();
 }
@@ -59,7 +60,7 @@ class _QuestionListState extends State<QuestionList> {
           .snapshots(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
-          return Center(child: CircularProgressIndicator());
+          return const Center(child: CircularProgressIndicator());
         }
 
         return ListView.builder(
@@ -68,7 +69,7 @@ class _QuestionListState extends State<QuestionList> {
             DocumentSnapshot doc = snapshot.data!.docs[index];
             return QuestionListItem(
               title: doc['title'],
-              author: doc['author'],
+              author: doc['author'], // This is the user ID
               timestamp: doc['timestamp'],
               content: doc['content'],
               onTap: () {
@@ -90,12 +91,13 @@ class _QuestionListState extends State<QuestionList> {
 
 class QuestionListItem extends StatelessWidget {
   final String title;
-  final String author;
+  final String author; // This is the user ID
   final Timestamp timestamp;
   final String content;
   final VoidCallback onTap;
 
-  QuestionListItem({
+  const QuestionListItem({
+    super.key,
     required this.title,
     required this.author,
     required this.timestamp,
@@ -103,45 +105,69 @@ class QuestionListItem extends StatelessWidget {
     required this.onTap,
   });
 
+  // Fetch the full name based on the author (userId)
+  Future<String> _getAuthorName(String authorId) async {
+    DocumentSnapshot userSnapshot = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(authorId)
+        .get();
+
+    if (userSnapshot.exists) {
+      return userSnapshot['name']; // Return the full name from the 'name' field
+    }
+    return 'Unknown Author'; // If user data is not found
+  }
+
   @override
   Widget build(BuildContext context) {
     return Card(
       elevation: 2,
-      margin: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       child: InkWell(
         onTap: onTap,
         child: Padding(
-          padding: EdgeInsets.all(16),
+          padding: const EdgeInsets.all(16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 title,
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
                 ),
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               Text(
                 content,
                 style: TextStyle(fontSize: 14, color: Colors.grey[600]),
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    author,
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.blue[700],
-                    ),
+                  FutureBuilder<String>(
+                    future: _getAuthorName(author), // Fetch the name field
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Text('Loading...'); // While fetching
+                      } else if (snapshot.hasError) {
+                        return const Text('Error'); // Handle error
+                      } else {
+                        return Text(
+                          snapshot.data ?? 'Unknown Author',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.blue[700],
+                          ),
+                        );
+                      }
+                    },
                   ),
                   Text(
                     DateFormat('MMM d, yyyy').format(timestamp.toDate()),
@@ -163,7 +189,7 @@ class QuestionListItem extends StatelessWidget {
 class QuestionViewScreen extends StatefulWidget {
   final String questionId;
 
-  QuestionViewScreen({required this.questionId});
+  const QuestionViewScreen({super.key, required this.questionId});
 
   @override
   State<QuestionViewScreen> createState() => _QuestionViewScreenState();
@@ -174,7 +200,7 @@ class _QuestionViewScreenState extends State<QuestionViewScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Question'),
+        title: const Text('Question'),
         backgroundColor: Colors.deepOrange,
       ),
       body: Column(
@@ -184,11 +210,11 @@ class _QuestionViewScreenState extends State<QuestionViewScreen> {
         ],
       ),
       floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.reply),
         backgroundColor: Colors.deepOrange,
         onPressed: () {
           _showReplyDialog(context, widget.questionId);
         },
+        child: const Icon(Icons.reply),
       ),
     );
   }
@@ -197,24 +223,24 @@ class _QuestionViewScreenState extends State<QuestionViewScreen> {
     showDialog(
       context: context,
       builder: (context) {
-        final _formKey = GlobalKey<FormState>();
-        final _contentController = TextEditingController();
-        String? _userUid;
+        final formKey = GlobalKey<FormState>();
+        final contentController = TextEditingController();
+        String? userUid;
 
-        Future<void> _loadUserUid() async {
+        Future<void> loadUserUid() async {
           final prefs = await SharedPreferences.getInstance();
-          _userUid = prefs.getString('uid');
+          userUid = prefs.getString('uid');
         }
 
-        Future<void> _submitReply() async {
-          if (_formKey.currentState!.validate() && _userUid != null) {
+        Future<void> submitReply() async {
+          if (formKey.currentState!.validate() && userUid != null) {
             await FirebaseFirestore.instance
                 .collection('forum')
                 .doc(questionId)
                 .collection('replies')
                 .add({
-              'text': _contentController.text,
-              'author': _userUid,
+              'text': contentController.text,
+              'author': userUid,
               'timestamp': FieldValue.serverTimestamp(),
             });
 
@@ -222,15 +248,15 @@ class _QuestionViewScreenState extends State<QuestionViewScreen> {
           }
         }
 
-        _loadUserUid();
+        loadUserUid();
 
         return AlertDialog(
-          title: Text('Add Reply'),
+          title: const Text('Add Reply'),
           content: Form(
-            key: _formKey,
+            key: formKey,
             child: TextFormField(
-              controller: _contentController,
-              decoration: InputDecoration(
+              controller: contentController,
+              decoration: const InputDecoration(
                 labelText: 'Reply',
                 border: OutlineInputBorder(),
                 focusedBorder: OutlineInputBorder(
@@ -248,16 +274,16 @@ class _QuestionViewScreenState extends State<QuestionViewScreen> {
           ),
           actions: [
             TextButton(
-              child: Text('Cancel'),
+              child: const Text('Cancel'),
               onPressed: () => Navigator.pop(context),
             ),
             TextButton(
-              child: Text('Submit'),
-              onPressed: _submitReply,
+              onPressed: submitReply,
               style: TextButton.styleFrom(
                 foregroundColor: Colors.white,
                 backgroundColor: Colors.deepOrange,
               ),
+              child: const Text('Submit'),
             ),
           ],
         );
@@ -269,13 +295,26 @@ class _QuestionViewScreenState extends State<QuestionViewScreen> {
 class QuestionDetails extends StatefulWidget {
   final String questionId;
 
-  QuestionDetails({required this.questionId});
+  const QuestionDetails({super.key, required this.questionId});
 
   @override
   State<QuestionDetails> createState() => _QuestionDetailsState();
 }
 
 class _QuestionDetailsState extends State<QuestionDetails> {
+  // Fetch the full name based on the author (userId)
+  Future<String> _getAuthorName(String authorId) async {
+    DocumentSnapshot userSnapshot = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(authorId)
+        .get();
+
+    if (userSnapshot.exists) {
+      return userSnapshot['name']; // Return the full name from the 'name' field
+    }
+    return 'Unknown Author'; // If user data is not found
+  }
+
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<DocumentSnapshot>(
@@ -284,27 +323,29 @@ class _QuestionDetailsState extends State<QuestionDetails> {
           .doc(widget.questionId)
           .snapshots(),
       builder: (context, snapshot) {
-        if (!snapshot.hasData)
-          return Center(child: CircularProgressIndicator());
+        if (!snapshot.hasData) {
+          return const Center(child: CircularProgressIndicator());
+        }
 
         var questionData = snapshot.data!.data() as Map<String, dynamic>;
+        var authorId = questionData['author']; // This is the user ID
 
         return Card(
-          margin: EdgeInsets.all(8.0),
+          margin: const EdgeInsets.all(8.0),
           color: Colors.blue[50], // Light blue background for question
           child: Padding(
-            padding: EdgeInsets.all(16.0),
+            padding: const EdgeInsets.all(16.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   questionData['title'],
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                SizedBox(height: 8.0),
+                const SizedBox(height: 8.0),
                 Text(
                   questionData['content'],
                   style: TextStyle(
@@ -312,13 +353,24 @@ class _QuestionDetailsState extends State<QuestionDetails> {
                     color: Colors.grey[700],
                   ),
                 ),
-                SizedBox(height: 8.0),
-                Text(
-                  'Asked by ${questionData['author']} on ${DateFormat('MMM d, yyyy').format(questionData['timestamp'].toDate())}',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey[500],
-                  ),
+                const SizedBox(height: 8.0),
+                FutureBuilder<String>(
+                  future: _getAuthorName(authorId), // Fetch the name field
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Text('Loading author...');
+                    } else if (snapshot.hasError) {
+                      return const Text('Error fetching author');
+                    } else {
+                      return Text(
+                        'Asked by ${snapshot.data ?? 'Unknown Author'} on ${DateFormat('MMM d, yyyy').format(questionData['timestamp'].toDate())}',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.grey[500],
+                        ),
+                      );
+                    }
+                  },
                 ),
               ],
             ),
@@ -332,13 +384,53 @@ class _QuestionDetailsState extends State<QuestionDetails> {
 class ReplyList extends StatefulWidget {
   final String questionId;
 
-  ReplyList({required this.questionId});
+  const ReplyList({super.key, required this.questionId});
 
   @override
   State<ReplyList> createState() => _ReplyListState();
 }
 
 class _ReplyListState extends State<ReplyList> {
+  String? loggedInUserId;
+
+  @override
+  void initState() {
+    super.initState();
+    _getLoggedInUser();
+  }
+
+  // Get the logged-in user's ID from shared preferences
+  Future<void> _getLoggedInUser() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      loggedInUserId = prefs
+          .getString('uid'); // Assuming 'uid' is stored for the logged-in user
+    });
+  }
+
+  // Fetch the full name based on the author (userId)
+  Future<String> _getAuthorName(String authorId) async {
+    DocumentSnapshot userSnapshot = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(authorId)
+        .get();
+
+    if (userSnapshot.exists) {
+      return userSnapshot['name']; // Return the full name from the 'name' field
+    }
+    return 'Unknown Author'; // If user data is not found
+  }
+
+  // Delete a reply by its document ID
+  Future<void> _deleteReply(String questionId, String replyId) async {
+    await FirebaseFirestore.instance
+        .collection('forum')
+        .doc(questionId)
+        .collection('replies')
+        .doc(replyId)
+        .delete();
+  }
+
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<QuerySnapshot>(
@@ -350,14 +442,16 @@ class _ReplyListState extends State<ReplyList> {
           .snapshots(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
-          return Center(child: CircularProgressIndicator());
+          return const Center(child: CircularProgressIndicator());
         }
 
         return ListView.builder(
           itemCount: snapshot.data!.docs.length,
           itemBuilder: (context, index) {
-            var replyData =
-                snapshot.data!.docs[index].data() as Map<String, dynamic>;
+            var replyDoc = snapshot.data!.docs[index];
+            var replyData = replyDoc.data() as Map<String, dynamic>;
+            var replyId = replyDoc.id;
+            var authorId = replyData['author'];
 
             // Handle the case where the timestamp might be null
             var timestamp = replyData['timestamp'] as Timestamp?;
@@ -366,23 +460,82 @@ class _ReplyListState extends State<ReplyList> {
                 : 'Unknown date';
 
             return Card(
-              margin: EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0),
+              margin:
+                  const EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0),
               child: Padding(
-                padding: EdgeInsets.all(8.0),
+                padding: const EdgeInsets.all(8.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(replyData['text']),
-                    SizedBox(height: 4.0),
-                    Text(
-                      'Replied by ${replyData['author']} on $formattedTimestamp',
-                      style: TextStyle(color: Colors.grey),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          replyData['text'],
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        if (authorId == loggedInUserId)
+                          IconButton(
+                            icon: Icon(Icons.delete, color: Colors.red),
+                            onPressed: () {
+                              _showDeleteConfirmationDialog(context, replyId);
+                            },
+                          ),
+                      ],
+                    ),
+                    const SizedBox(height: 4.0),
+                    FutureBuilder<String>(
+                      future: _getAuthorName(
+                          authorId), // Fetch full name from 'author'
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return const Text('Loading...');
+                        } else if (snapshot.hasError) {
+                          return const Text('Error');
+                        } else {
+                          return Text(
+                            'Replied by ${snapshot.data ?? 'Unknown Author'} on $formattedTimestamp',
+                            style: const TextStyle(color: Colors.grey),
+                          );
+                        }
+                      },
                     ),
                   ],
                 ),
               ),
             );
           },
+        );
+      },
+    );
+  }
+
+  // Show a confirmation dialog before deleting the reply
+  void _showDeleteConfirmationDialog(BuildContext context, String replyId) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Delete Reply'),
+          content: const Text('Are you sure you want to delete this reply?'),
+          actions: [
+            TextButton(
+              child: const Text('Cancel'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: const Text('Delete'),
+              onPressed: () {
+                _deleteReply(widget.questionId, replyId);
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
         );
       },
     );

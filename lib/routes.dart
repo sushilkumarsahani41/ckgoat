@@ -1,8 +1,11 @@
 import 'package:ckgoat/pages/Login.dart';
 import 'package:ckgoat/pages/SellAnimal/FormPage.dart';
 import 'package:ckgoat/pages/home.dart';
+import 'package:ckgoat/pages/ownAnimals.dart';
+import 'package:ckgoat/pages/privacy_Policy.dart';
 import 'package:ckgoat/pages/signup.dart';
 import 'package:ckgoat/pages/splashScreen.dart';
+import 'package:ckgoat/pages/termsandCondition.dart';
 import 'package:flutter/material.dart';
 
 class RouteGenerator {
@@ -19,7 +22,13 @@ class RouteGenerator {
       case '/signup':
         return _createRoute(const SignupPage());
       case '/sellAnimal':
-        return _createRoute(SellAnimalPage());
+        return _createRoute(const SellAnimalPage());
+      case "/terms_conditions":
+        return _createRoute(TermsAndConditionsPage());
+      case "/privacy_policy":
+        return _createRoute(PrivacyPolicyPage());
+      case "/your_animal":
+        return _createRoute(const OwnAnimals());
       default:
         return _errorRoute();
     }
@@ -48,9 +57,9 @@ class RouteGenerator {
     return MaterialPageRoute(builder: (_) {
       return Scaffold(
         appBar: AppBar(
-          title: Text('Error'),
+          title: const Text('Error'),
         ),
-        body: Center(
+        body: const Center(
           child: Text('ERROR: Route not found!'),
         ),
       );

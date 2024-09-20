@@ -3,6 +3,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AddQuestionPage extends StatefulWidget {
+  const AddQuestionPage({super.key});
+
   @override
   _AddQuestionPageState createState() => _AddQuestionPageState();
 }
@@ -43,7 +45,7 @@ class _AddQuestionPageState extends State<AddQuestionPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Add Question'),
+        title: const Text('Add Question'),
         backgroundColor: Colors.deepOrange,
       ),
       body: Padding(
@@ -54,7 +56,7 @@ class _AddQuestionPageState extends State<AddQuestionPage> {
             children: [
               TextFormField(
                 controller: _titleController,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Title',
                   border: OutlineInputBorder(),
                   focusedBorder: OutlineInputBorder(
@@ -68,10 +70,10 @@ class _AddQuestionPageState extends State<AddQuestionPage> {
                   return null;
                 },
               ),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
               TextFormField(
                 controller: _contentController,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Content',
                   border: OutlineInputBorder(),
                   focusedBorder: OutlineInputBorder(
@@ -86,13 +88,13 @@ class _AddQuestionPageState extends State<AddQuestionPage> {
                   return null;
                 },
               ),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
               ElevatedButton(
                 onPressed: _submitQuestion,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.deepOrange,
                 ),
-                child: Text('Submit'),
+                child: const Text('Submit'),
               ),
             ],
           ),

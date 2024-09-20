@@ -1,3 +1,4 @@
+import 'package:ckgoat/main.dart';
 import 'package:ckgoat/services/AuthService.dart';
 import 'package:ckgoat/widgets/elevation.dart';
 import 'package:flutter/material.dart';
@@ -21,34 +22,29 @@ class _LoginScreenState extends State<LoginScreen> {
       setState(() => _passVisibility = !_passVisibility);
 
   Future<void> performLogin() async {
-    // Ensure that email and password fields are not empty
     if (_emailController.text.isEmpty || _passwordController.text.isEmpty) {
-      // Ideally, show a user-friendly error message, possibly using a Snackbar
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Please enter both email and password.'),
+          content: Text(
+              AppLocalizations.of(context)!.translate('enter_email_password')),
           backgroundColor: Colors.red,
         ),
       );
       return;
     }
 
-    // Call the login function from the Service class
     var result = await AuthService.signInWithEmailAndPass(
         _emailController.text, _passwordController.text);
 
-    // Check the result of the login attempt
     if (result['uid'] != null) {
-      // Login was successful
-      SharedPreferences _prefs = await SharedPreferences.getInstance();
-      await _prefs.setString('uid', result['uid']!);
-      Navigator.pushReplacementNamed(
-          context, '/'); // Navigate to home or another appropriate page
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.setString('uid', result['uid']!);
+      Navigator.pushReplacementNamed(context, '/');
     } else {
-      // Login failed, display error message
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(result['error'] ?? 'Failed to log in.'),
+          content: Text(result['error'] ??
+              AppLocalizations.of(context)!.translate('login_failed')),
           backgroundColor: Colors.red,
         ),
       );
@@ -58,8 +54,8 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<void> loginWithGoogle() async {
     try {
       var uid = await AuthService.signInWithGoogle();
-      final SharedPreferences _pref = await SharedPreferences.getInstance();
-      await _pref.setString('uid', uid!);
+      final SharedPreferences pref = await SharedPreferences.getInstance();
+      await pref.setString('uid', uid!);
       Navigator.pushReplacementNamed(context, '/');
     } catch (e) {
       // Handle error or show a Snackbar
@@ -75,12 +71,15 @@ class _LoginScreenState extends State<LoginScreen> {
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text("CK GOAT FARM",
+              const SizedBox(
+                height: 5,
+              ),
+              Text(AppLocalizations.of(context)!.translate('app_title'),
                   style: GoogleFonts.archivoBlack(
                       fontSize: 28,
                       fontWeight: FontWeight.bold,
                       color: deepOne)),
-              Text("Animal Buy and Sell",
+              Text(AppLocalizations.of(context)!.translate('app_subtitle'),
                   style: GoogleFonts.zillaSlab(
                       color: deepOne,
                       fontSize: 18,
@@ -94,22 +93,26 @@ class _LoginScreenState extends State<LoginScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text("Log In",
+              Text(AppLocalizations.of(context)!.translate('login'),
                   style: GoogleFonts.ptSans(
                       fontSize: 60,
                       fontWeight: FontWeight.bold,
                       color: deepOne)),
-              SizedBox(height: 20),
-              buildTextField("Email", _emailController, false),
-              buildTextField("Password", _passwordController, true),
+              const SizedBox(height: 20),
+              buildTextField(AppLocalizations.of(context)!.translate('email'),
+                  _emailController, false),
+              buildTextField(
+                  AppLocalizations.of(context)!.translate('password'),
+                  _passwordController,
+                  true),
               buildForgotPasswordLink(),
-              SizedBox(height: 50),
+              const SizedBox(height: 50),
               buildLoginButton(),
-              SizedBox(
+              const SizedBox(
                 height: 40,
               ),
               buildSocialMediaLogin(),
-              SizedBox(
+              const SizedBox(
                 height: 40,
               ),
               buildSignUpLink(),
@@ -128,9 +131,9 @@ class _LoginScreenState extends State<LoginScreen> {
         Text(label,
             style: GoogleFonts.zillaSlab(
                 fontSize: 18, fontWeight: FontWeight.w600)),
-        SizedBox(height: 10),
+        const SizedBox(height: 10),
         AddElevation(
-          color: Color.fromARGB(255, 254, 236, 231),
+          color: const Color.fromARGB(255, 254, 236, 231),
           child: Padding(
             padding: const EdgeInsets.only(right: 5),
             child: TextField(
@@ -138,8 +141,12 @@ class _LoginScreenState extends State<LoginScreen> {
               obscureText: isPassword ? _passVisibility : false,
               decoration: InputDecoration(
                 border: InputBorder.none,
-                hintText: isPassword ? '*******' : 'Enter $label',
-                contentPadding: EdgeInsets.symmetric(horizontal: 15),
+                hintText: isPassword
+                    ? '*******'
+                    : AppLocalizations.of(context)!
+                        .translate('enter_label')
+                        .replaceFirst('{}', label),
+                contentPadding: const EdgeInsets.symmetric(horizontal: 15),
                 suffixIconConstraints: const BoxConstraints(
                   minHeight: 2,
                 ),
@@ -158,7 +165,7 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
           ),
         ),
-        SizedBox(height: 20),
+        const SizedBox(height: 20),
       ],
     );
   }
@@ -168,7 +175,7 @@ class _LoginScreenState extends State<LoginScreen> {
       alignment: Alignment.centerRight,
       child: InkWell(
         onTap: () {},
-        child: Text("Forget Password?",
+        child: Text(AppLocalizations.of(context)!.translate('forgot_password'),
             style: GoogleFonts.zillaSlab(
                 color: deepOne, fontSize: 16, fontWeight: FontWeight.w600)),
       ),
@@ -184,7 +191,7 @@ class _LoginScreenState extends State<LoginScreen> {
           onPressed: performLogin,
           style:
               ElevatedButton.styleFrom(backgroundColor: deepOne, elevation: 5),
-          child: Text('Log In',
+          child: Text(AppLocalizations.of(context)!.translate('login'),
               style: GoogleFonts.ptSerif(fontSize: 24, color: Colors.white)),
         ),
       ),
@@ -194,8 +201,9 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget buildSocialMediaLogin() {
     return Column(
       children: [
-        DividerWithText(text: "or continue with"),
-        SizedBox(
+        DividerWithText(
+            text: AppLocalizations.of(context)!.translate('or_continue_with')),
+        const SizedBox(
           height: 10,
         ),
         Center(
@@ -216,12 +224,12 @@ class _LoginScreenState extends State<LoginScreen> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Text("Don't have an Account? ",
+        Text(AppLocalizations.of(context)!.translate('dont_have_account'),
             style:
                 GoogleFonts.ptSans(fontWeight: FontWeight.w600, fontSize: 16)),
         InkWell(
           onTap: () => Navigator.pushReplacementNamed(context, '/signup'),
-          child: Text("Sign Up",
+          child: Text(AppLocalizations.of(context)!.translate('sign_up'),
               style: GoogleFonts.ptSans(
                   fontWeight: FontWeight.w600,
                   fontSize: 16,
@@ -236,14 +244,14 @@ class _LoginScreenState extends State<LoginScreen> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Expanded(child: Divider(height: 1, color: Colors.black87)),
+        const Expanded(child: Divider(height: 1, color: Colors.black87)),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 10),
           child: Text(text,
               style: GoogleFonts.ptSans(
                   fontWeight: FontWeight.w600, fontSize: 16)),
         ),
-        Expanded(child: Divider(height: 1, color: Colors.black87)),
+        const Expanded(child: Divider(height: 1, color: Colors.black87)),
       ],
     );
   }

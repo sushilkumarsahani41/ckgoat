@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:ckgoat/main.dart';
+import 'package:whatsapp/whatsapp.dart';
 
 class AnimalPage extends StatefulWidget {
   final String animalId;
 
-  AnimalPage({required this.animalId});
+  const AnimalPage({super.key, required this.animalId});
 
   @override
   _AnimalPageState createState() => _AnimalPageState();
@@ -42,19 +43,45 @@ class _AnimalPageState extends State<AnimalPage> {
     }
   }
 
+  // Function to convert age in months to years and months
+  String formatAge(int ageInMonths) {
+    int years = ageInMonths ~/ 12;
+    int months = ageInMonths % 12;
+    String formattedAge = '';
+
+    if (years > 0) {
+      formattedAge = '$years years';
+    }
+
+    if (months > 0) {
+      if (formattedAge.isNotEmpty) {
+        formattedAge += ' and ';
+      }
+      formattedAge += '$months months';
+    }
+
+    if (formattedAge.isEmpty) {
+      formattedAge = 'less than a month';
+    }
+
+    return formattedAge;
+  }
+
   @override
   Widget build(BuildContext context) {
+    final AppLocalizations localizations = AppLocalizations.of(context)!;
+
     return Scaffold(
       appBar: AppBar(
-        title: Text('Product Page'),
+        title: Text(localizations.translate('animal_title')),
         backgroundColor: Colors.deepOrange,
       ),
       body: animalData == null
-          ? Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator())
           : Stack(
               children: [
                 SingleChildScrollView(
-                  padding: EdgeInsets.only(bottom: 80),
+                  padding: const EdgeInsets.only(bottom: 80),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -93,7 +120,7 @@ class _AnimalPageState extends State<AnimalPage> {
                                   child: Container(
                                     width: 8.0,
                                     height: 8.0,
-                                    margin: EdgeInsets.symmetric(
+                                    margin: const EdgeInsets.symmetric(
                                         vertical: 8.0, horizontal: 4.0),
                                     decoration: BoxDecoration(
                                       shape: BoxShape.circle,
@@ -108,95 +135,195 @@ class _AnimalPageState extends State<AnimalPage> {
                           ),
                         ],
                       ),
-                      SizedBox(height: 20),
+                      const SizedBox(height: 20),
                       Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 16.0),
+                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
                         child: Card(
                           elevation: 5,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(15),
                           ),
                           child: Padding(
-                            padding: EdgeInsets.all(16.0),
+                            padding: const EdgeInsets.all(16.0),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(
-                                  animalData?['title'] ?? 'No title',
-                                  style: TextStyle(
-                                      fontSize: 24,
-                                      fontWeight: FontWeight.bold),
-                                ),
-                                SizedBox(height: 10),
-                                Row(
-                                  children: [
-                                    Icon(Icons.location_on, color: Colors.grey),
-                                    SizedBox(width: 5),
-                                    Text(
-                                        '${animalData?['addressLine1']}, ${animalData?['city']}',
-                                        style: TextStyle(fontSize: 16)),
-                                  ],
-                                ),
-                                SizedBox(height: 10),
-                                Row(
-                                  children: [
-                                    Icon(Icons.calendar_today,
-                                        color: Colors.grey),
-                                    SizedBox(width: 5),
-                                    Text('Age: ${animalData?['age']}',
-                                        style: TextStyle(fontSize: 16)),
-                                  ],
-                                ),
-                                SizedBox(height: 10),
-                                Row(
-                                  children: [
-                                    Icon(Icons.phone, color: Colors.grey),
-                                    SizedBox(width: 5),
-                                    Text('${animalData?['mobileNumber']}',
-                                        style: TextStyle(fontSize: 16)),
-                                  ],
-                                ),
-                                SizedBox(height: 10),
-                                Row(
-                                  children: [
-                                    Icon(Icons.pets, color: Colors.grey),
-                                    SizedBox(width: 5),
-                                    Text('Breed Info: ${animalData?['breed']}',
-                                        style: TextStyle(fontSize: 16)),
-                                  ],
-                                ),
-                                SizedBox(height: 10),
-                                Row(
-                                  children: [
-                                    Icon(Icons.scale, color: Colors.grey),
-                                    SizedBox(width: 5),
-                                    Text('Weight: ${animalData?['weight']} kg',
-                                        style: TextStyle(fontSize: 16)),
-                                  ],
-                                ),
-                                SizedBox(height: 10),
-                                Row(
-                                  children: [
-                                    Icon(Icons.attach_money,
-                                        color: Colors.grey),
-                                    SizedBox(width: 5),
-                                    Text('Price: \$${animalData?['price']}',
-                                        style: TextStyle(fontSize: 16)),
-                                  ],
-                                ),
-                                SizedBox(height: 10),
-                                Text(
-                                  'Description:',
-                                  style: TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold),
-                                ),
-                                SizedBox(height: 5),
-                                Text(
-                                  animalData?['description'] ??
-                                      'No description',
-                                  style: TextStyle(fontSize: 16),
-                                ),
+                                if (animalData?['title'] != null)
+                                  Text(
+                                    animalData?['title'] ??
+                                        localizations
+                                            .translate('animal_no_title'),
+                                    style: const TextStyle(
+                                        fontSize: 24,
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                const SizedBox(height: 10),
+                                if (animalData?['animalType'] != null)
+                                  Row(
+                                    children: [
+                                      const Icon(Icons.pets,
+                                          color: Colors.grey),
+                                      const SizedBox(width: 5),
+                                      Text(
+                                        '${localizations.translate('animal_animal_type')}: ${localizations.translate(animalData!['animalType'].toLowerCase())}',
+                                        style: const TextStyle(fontSize: 16),
+                                      ),
+                                    ],
+                                  ),
+                                const SizedBox(height: 10),
+                                if (animalData?['breed'] != null)
+                                  Row(
+                                    children: [
+                                      const Icon(Icons.pets,
+                                          color: Colors.grey),
+                                      const SizedBox(width: 5),
+                                      Text(
+                                        '${localizations.translate('animal_breed')}: ${localizations.translate(animalData?['breed'])}',
+                                        style: const TextStyle(fontSize: 16),
+                                      ),
+                                    ],
+                                  ),
+                                const SizedBox(height: 10),
+                                if (animalData?['gender'] != null)
+                                  Row(
+                                    children: [
+                                      const Icon(Icons.wc, color: Colors.grey),
+                                      const SizedBox(width: 5),
+                                      Text(
+                                        '${localizations.translate('animal_gender')}: ${localizations.translate(animalData!['gender'].toLowerCase())}',
+                                        style: const TextStyle(fontSize: 16),
+                                      ),
+                                    ],
+                                  ),
+                                const SizedBox(height: 10),
+                                if (animalData?['age'] != null)
+                                  Row(
+                                    children: [
+                                      const Icon(Icons.calendar_today,
+                                          color: Colors.grey),
+                                      const SizedBox(width: 5),
+                                      Text(
+                                        '${localizations.translate('animal_age')}: ${formatAge(animalData?['age'])}',
+                                        style: const TextStyle(fontSize: 16),
+                                      ),
+                                    ],
+                                  ),
+                                const SizedBox(height: 10),
+                                if (animalData?['lactation'] != null)
+                                  Row(
+                                    children: [
+                                      const Icon(Icons.replay,
+                                          color: Colors.grey),
+                                      const SizedBox(width: 5),
+                                      Text(
+                                        '${localizations.translate('animal_lactation')}: ${animalData?['lactation']}',
+                                        style: const TextStyle(fontSize: 16),
+                                      ),
+                                    ],
+                                  ),
+                                const SizedBox(height: 10),
+                                if (animalData?['milkCapacity'] != null)
+                                  Row(
+                                    children: [
+                                      const Icon(Icons.local_drink,
+                                          color: Colors.grey),
+                                      const SizedBox(width: 5),
+                                      Text(
+                                        '${localizations.translate('animal_milk_capacity')}: ${animalData?['milkCapacity']}L',
+                                        style: const TextStyle(fontSize: 16),
+                                      ),
+                                    ],
+                                  ),
+                                const SizedBox(height: 10),
+                                if (animalData?['weight'] != null)
+                                  Row(
+                                    children: [
+                                      const Icon(Icons.scale,
+                                          color: Colors.grey),
+                                      const SizedBox(width: 5),
+                                      Text(
+                                        '${localizations.translate('animal_weight')}: ${animalData?['weight']} kg',
+                                        style: const TextStyle(fontSize: 16),
+                                      ),
+                                    ],
+                                  ),
+                                const SizedBox(height: 10),
+                                if (animalData?['price'] != null)
+                                  Row(
+                                    children: [
+                                      const Icon(Icons.attach_money,
+                                          color: Colors.grey),
+                                      const SizedBox(width: 5),
+                                      Text(
+                                        '${localizations.translate('animal_price')}: ₹${animalData?['price']}',
+                                        style: const TextStyle(fontSize: 16),
+                                      ),
+                                    ],
+                                  ),
+                                const SizedBox(height: 10),
+                                if (animalData?['address'] != null)
+                                  Row(
+                                    children: [
+                                      const Icon(Icons.location_on,
+                                          color: Colors.grey),
+                                      const SizedBox(width: 5),
+                                      Text(
+                                        '${localizations.translate('animal_address')}: ${animalData?['address']}',
+                                        style: const TextStyle(fontSize: 16),
+                                      ),
+                                    ],
+                                  ),
+                                const SizedBox(height: 10),
+                                if (animalData?['city'] != null)
+                                  Row(
+                                    children: [
+                                      const Icon(Icons.location_city,
+                                          color: Colors.grey),
+                                      const SizedBox(width: 5),
+                                      Text(
+                                        '${localizations.translate('animal_city')}: ${animalData?['city']}',
+                                        style: const TextStyle(fontSize: 16),
+                                      ),
+                                    ],
+                                  ),
+                                const SizedBox(height: 10),
+                                if (animalData?['state'] != null)
+                                  Row(
+                                    children: [
+                                      const Icon(Icons.map, color: Colors.grey),
+                                      const SizedBox(width: 5),
+                                      Text(
+                                        '${localizations.translate('animal_state')}: ${animalData?['state']}',
+                                        style: const TextStyle(fontSize: 16),
+                                      ),
+                                    ],
+                                  ),
+                                const SizedBox(height: 10),
+                                if (animalData?['pinCode'] != null)
+                                  Row(
+                                    children: [
+                                      const Icon(Icons.local_post_office,
+                                          color: Colors.grey),
+                                      const SizedBox(width: 5),
+                                      Text(
+                                        '${localizations.translate('animal_pincode')}: ${animalData?['pinCode']}',
+                                        style: const TextStyle(fontSize: 16),
+                                      ),
+                                    ],
+                                  ),
+                                const SizedBox(height: 10),
+                                if (animalData?['mobileNumber'] != null)
+                                  Row(
+                                    children: [
+                                      const Icon(Icons.phone,
+                                          color: Colors.grey),
+                                      const SizedBox(width: 5),
+                                      Text(
+                                        '${localizations.translate('animal_mobile')}: ${animalData?['mobileNumber']}',
+                                        style: const TextStyle(fontSize: 16),
+                                      ),
+                                    ],
+                                  ),
                               ],
                             ),
                           ),
@@ -210,8 +337,8 @@ class _AnimalPageState extends State<AnimalPage> {
                   left: 0,
                   right: 0,
                   child: Container(
-                    padding: EdgeInsets.all(10),
-                    decoration: BoxDecoration(
+                    padding: const EdgeInsets.all(10),
+                    decoration: const BoxDecoration(
                       color: Colors.white,
                       boxShadow: [
                         BoxShadow(
@@ -232,30 +359,33 @@ class _AnimalPageState extends State<AnimalPage> {
                           onPressed: () {
                             _handleCallNow();
                           },
-                          icon: Icon(Icons.phone),
-                          label: Text('Call Now'),
+                          icon: const Icon(Icons.phone),
+                          label:
+                              Text(localizations.translate('animal_call_now')),
                           style: ElevatedButton.styleFrom(
+                            foregroundColor: Colors.white,
                             backgroundColor: Colors.deepOrange,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(10),
                             ),
-                            padding: EdgeInsets.symmetric(
+                            padding: const EdgeInsets.symmetric(
                                 horizontal: 20, vertical: 15),
                           ),
                         ),
-                        SizedBox(width: 10),
+                        const SizedBox(width: 10),
                         ElevatedButton.icon(
                           onPressed: () {
                             _handleWhatsApp();
                           },
-                          icon: Icon(Icons.message),
+                          icon: const Icon(Icons.message),
                           label: Text('WhatsApp'),
                           style: ElevatedButton.styleFrom(
+                            foregroundColor: Colors.white,
                             backgroundColor: Colors.green,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(10),
                             ),
-                            padding: EdgeInsets.symmetric(
+                            padding: const EdgeInsets.symmetric(
                                 horizontal: 20, vertical: 15),
                           ),
                         ),
@@ -281,24 +411,32 @@ class _AnimalPageState extends State<AnimalPage> {
   }
 
   void _handleCallNow() {
-    // Implement call logic here
-    print('Calling Now...');
     _makePhoneCall('+91${animalData?['mobileNumber']}');
   }
 
-  launchWhatsappWithMobileNumber(mobileNumber, message) async {
-    final url = "https://api.whatsapp.com/send?phone=$mobileNumber";
-    print(url);
-    if (await canLaunchUrl(Uri.parse(Uri.encodeFull(url)))) {
-      await launchUrl(Uri.parse(Uri.encodeFull(url)));
+  launchWhatsappWithMobileNumber(String mobileNumber, String message) async {
+    final whatsappAppUrl =
+        "whatsapp://send?phone=$mobileNumber&text=${Uri.encodeComponent(message)}";
+
+    final whatsappWebUrl =
+        "https://api.whatsapp.com/send?phone=$mobileNumber&text=${Uri.encodeComponent(message)}";
+
+    if (await canLaunchUrl(Uri.parse(whatsappAppUrl))) {
+      await launchUrl(
+        Uri.parse(whatsappAppUrl),
+        mode: LaunchMode.externalApplication,
+      );
+    } else if (await canLaunchUrl(Uri.parse(whatsappWebUrl))) {
+      await launchUrl(
+        Uri.parse(whatsappWebUrl),
+        mode: LaunchMode.externalNonBrowserApplication,
+      );
     } else {
-      throw 'Could not launch $url';
+      print('Could not launch WhatsApp');
     }
   }
 
-  void _handleWhatsApp() {
-    // Implement WhatsApp message logic here
-    print('Sending WhatsApp Message...');
+  void _handleWhatsApp() async {
     launchWhatsappWithMobileNumber('91${animalData?['mobileNumber']}', "Hello");
   }
 }
