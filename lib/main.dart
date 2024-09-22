@@ -1,19 +1,20 @@
+import 'package:ckgoat/firebase_options.dart';
 import 'package:ckgoat/routes.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'dart:convert';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  FirebaseFirestore.instance.settings = Settings(
+  FirebaseFirestore.instance.settings = const Settings(
     persistenceEnabled: true,
     cacheSizeBytes: Settings.CACHE_SIZE_UNLIMITED, // or specify size in bytes
   );
@@ -23,10 +24,12 @@ void main() async {
 class MyApp extends StatefulWidget {
   const MyApp({super.key});
 
+  // ignore: library_private_types_in_public_api
   static _MyAppState? of(BuildContext context) =>
       context.findAncestorStateOfType<_MyAppState>();
 
   @override
+  // ignore: library_private_types_in_public_api
   _MyAppState createState() => _MyAppState();
 }
 
@@ -113,7 +116,9 @@ class AppLocalizations {
           jsonMap.map((key, value) => MapEntry(key, value.toString()));
       return true;
     } catch (e) {
-      print('Error loading language file: $e');
+      if (kDebugMode) {
+        print('Error loading language file: $e');
+      }
       // Fallback to English if loading fails
       String fallbackJsonString =
           await rootBundle.loadString('assets/lang/en.json');

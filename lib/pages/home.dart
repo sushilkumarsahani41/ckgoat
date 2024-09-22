@@ -1,6 +1,8 @@
 import 'package:ckgoat/main.dart';
-import 'package:ckgoat/pages/BuyAnimals/BuyAnimalHome.dart';
+import 'package:ckgoat/pages/BuyAnimals/buyAnimalHome.dart';
+import 'package:ckgoat/pages/LanguageSelectionPage.dart';
 import 'package:ckgoat/pages/SellAnimal/FormPage.dart';
+import 'package:ckgoat/pages/WishListPage.dart';
 import 'package:ckgoat/pages/profilepage.dart';
 import 'package:ckgoat/pages/forum/community.dart';
 import 'package:flutter/material.dart';
@@ -20,6 +22,75 @@ class _HomeScreenState extends State<HomeScreen> {
       length: 4, // Total number of tabs
       child: Scaffold(
         appBar: AppBar(
+          actions: [
+            Padding(
+              padding: const EdgeInsets.only(right: 10),
+              child: Container(
+                width: 40,
+                decoration: const BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.white,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black12,
+                        blurRadius: 3,
+                        offset: Offset(0, 2),
+                      ),
+                    ]),
+                child: IconButton(
+                  iconSize: 20,
+                  // splashRadius: 6,
+                  icon: const Icon(
+                    Icons.translate,
+                    color: Colors.black,
+                  ),
+                  onPressed: () {
+                    // Navigate to the WishListPage
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => LanguageSelectionPage(
+                          onLocaleChange: (locale) {
+                            _setLocale(locale); // Callback to change locale
+                          },
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(right: 20),
+              child: Container(
+                width: 40,
+                decoration: const BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.white,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black12,
+                        blurRadius: 3,
+                        offset: Offset(0, 2),
+                      ),
+                    ]),
+                child: IconButton(
+                  icon: const Icon(Icons.favorite_outline,
+                      color: Colors.deepOrange),
+                  onPressed: () {
+                    // Navigate to the WishListPage
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            const Wishlistpage(), // Assuming WishListPage is imported
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ),
+          ],
           title: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -96,5 +167,11 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
     );
+  }
+
+  void _setLocale(Locale locale) {
+    setState(() {
+      MyApp.of(context)?.setLocale(locale); // Use MyApp's locale setter
+    });
   }
 }

@@ -39,8 +39,10 @@ class _LoginScreenState extends State<LoginScreen> {
     if (result['uid'] != null) {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       await prefs.setString('uid', result['uid']!);
+      // ignore: use_build_context_synchronously
       Navigator.pushReplacementNamed(context, '/');
     } else {
+      // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(result['error'] ??
@@ -54,11 +56,28 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<void> loginWithGoogle() async {
     try {
       var uid = await AuthService.signInWithGoogle();
-      final SharedPreferences pref = await SharedPreferences.getInstance();
-      await pref.setString('uid', uid!);
-      Navigator.pushReplacementNamed(context, '/');
+      if (uid != null) {
+        final SharedPreferences pref = await SharedPreferences.getInstance();
+        await pref.setString('uid', uid);
+        Navigator.pushReplacementNamed(context, '/');
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content:
+                Text(AppLocalizations.of(context)!.translate('login_failed')),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     } catch (e) {
-      // Handle error or show a Snackbar
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            AppLocalizations.of(context)!.translate('google_signin_failed'),
+          ),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
   }
 

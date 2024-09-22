@@ -65,7 +65,7 @@ class _SecondaryInfoPageState extends State<SecondaryInfoPage> {
       isPinCodeValid = false;
     });
 
-    final apiUrl = 'http://api.ckgoat.greatshark.in/location/pincode/$pincode';
+    final apiUrl = 'https://api.ckgoat.greatshark.in/location/pincode/$pincode';
     try {
       final response = await http.get(Uri.parse(apiUrl));
       if (response.statusCode == 200) {
@@ -327,9 +327,9 @@ class _SecondaryInfoPageState extends State<SecondaryInfoPage> {
                 ),
                 onPressed: _submitForm,
                 child: isSubmitClicked
-                    ? Padding(
-                        padding: const EdgeInsets.all(5),
-                        child: const CircularProgressIndicator(
+                    ? const Padding(
+                        padding: EdgeInsets.all(5),
+                        child: CircularProgressIndicator(
                             color: Colors.white),
                       )
                     : Text(
@@ -372,7 +372,7 @@ class _SecondaryInfoPageState extends State<SecondaryInfoPage> {
     bool isResendEnabled = false;
     int resendCounter = 60; // Initial countdown for 60 seconds
 
-    void _startResendTimer(StateSetter setModal) {
+    void startResendTimer(StateSetter setModal) {
       const oneSec = Duration(seconds: 1);
       _resendTimer = Timer.periodic(oneSec, (Timer timer) {
         if (mounted) {
@@ -402,7 +402,7 @@ class _SecondaryInfoPageState extends State<SecondaryInfoPage> {
         return StatefulBuilder(
           builder: (BuildContext context, StateSetter setModal) {
             if (!isResendEnabled && _resendTimer == null) {
-              _startResendTimer(setModal); // Start the timer when modal opens
+              startResendTimer(setModal); // Start the timer when modal opens
             }
 
             return Padding(
@@ -415,7 +415,7 @@ class _SecondaryInfoPageState extends State<SecondaryInfoPage> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   const SizedBox(height: 16),
-                  Icon(
+                  const Icon(
                     Icons.lock_outline,
                     color: Colors.deepOrange,
                     size: 40,
@@ -435,7 +435,7 @@ class _SecondaryInfoPageState extends State<SecondaryInfoPage> {
                     maxLength: 6,
                     textAlign: TextAlign.center,
                     controller: _otpController,
-                    style: TextStyle(
+                    style: const TextStyle(
                       color: Colors.black,
                       fontWeight: FontWeight.bold,
                       letterSpacing: 5,
@@ -504,8 +504,8 @@ class _SecondaryInfoPageState extends State<SecondaryInfoPage> {
                             }
                           },
                           child: verifyOTP
-                              ? Padding(
-                                  padding: const EdgeInsets.all(5),
+                              ? const Padding(
+                                  padding: EdgeInsets.all(5),
                                   child: CircularProgressIndicator(
                                     color: Colors.white,
                                   ),
@@ -529,7 +529,7 @@ class _SecondaryInfoPageState extends State<SecondaryInfoPage> {
                                 setModal(() {
                                   isResendEnabled = false;
                                   resendCounter = 60; // Reset the counter
-                                  _startResendTimer(
+                                  startResendTimer(
                                       setModal); // Start timer again
                                 });
                                 await _sendOtp(
@@ -609,6 +609,7 @@ class _SecondaryInfoPageState extends State<SecondaryInfoPage> {
 
   Future<void> _submitToFirestore() async {
     uploadedUrls = await UploadService().uploadFiles(selectedFiles);
+    var thumbnail = await UploadService().genThumbnail(selectedFiles.first);
     Map<String, dynamic> animalData = {};
 
     if (widget.animalType != null && widget.animalType!.isNotEmpty) {
@@ -651,8 +652,10 @@ class _SecondaryInfoPageState extends State<SecondaryInfoPage> {
       animalData['mobileNumber'] = _mobileNumberController.text;
     }
 
-    SharedPreferences _pref = await SharedPreferences.getInstance();
-    String uid = _pref.getString('uid')!;
+    animalData['thumbnail'] = thumbnail;
+
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    String uid = pref.getString('uid')!;
 
     animalData['uid'] = uid;
     animalData['uploadedUrls'] = uploadedUrls;
@@ -664,7 +667,7 @@ class _SecondaryInfoPageState extends State<SecondaryInfoPage> {
         _showSnackBar('Animal information submitted successfully');
         _resetFormSubmissionState();
         Future.delayed(const Duration(milliseconds: 500), () {
-          Navigator.pushReplacementNamed(context, '/home');
+          Navigator.popAndPushNamed(context, '/home');
         });
       } catch (e) {
         _showSnackBar('Failed to submit data');

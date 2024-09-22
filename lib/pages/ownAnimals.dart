@@ -1,22 +1,25 @@
 import 'dart:convert';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:ckgoat/main.dart';
 import 'package:ckgoat/pages/ownAnimalPage.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:geocoding_resolver/geocoding_resolver.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:ckgoat/pages/BuyAnimals/AnimalPage.dart';
+// import 'package:ckgoat/pages/BuyAnimals/AnimalPage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class OwnAnimals extends StatefulWidget {
-  const OwnAnimals({Key? key}) : super(key: key);
+  const OwnAnimals({super.key});
 
   @override
   _OwnAnimalsState createState() => _OwnAnimalsState();
 }
 
 class _OwnAnimalsState extends State<OwnAnimals> {
+  List favorites = [];
   String selectedCity = 'All India';
   String? selectedAnimalType = 'All';
   String? city;
@@ -38,7 +41,7 @@ class _OwnAnimalsState extends State<OwnAnimals> {
 
   void showLocationDialog(BuildContext context) {
     TextEditingController pincodeController = TextEditingController();
-    GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+    GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
     showDialog(
       context: context,
@@ -51,18 +54,18 @@ class _OwnAnimalsState extends State<OwnAnimals> {
           title: Row(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              Icon(Icons.location_city, color: Colors.deepOrange),
-              SizedBox(width: 10),
+              const Icon(Icons.location_city, color: Colors.deepOrange),
+              const SizedBox(width: 10),
               Text(
                   AppLocalizations.of(context)!
                       .translate('flsec_select_location'),
-                  style: TextStyle(color: Colors.deepOrange)),
+                  style: const TextStyle(color: Colors.deepOrange)),
             ],
           ),
           content: StatefulBuilder(
             builder: (BuildContext context, StateSetter setStateDialog) {
               return Form(
-                key: _formKey,
+                key: formKey,
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -73,9 +76,9 @@ class _OwnAnimalsState extends State<OwnAnimals> {
                         hintText: AppLocalizations.of(context)!
                             .translate('flsec_enter_pincode'),
                         suffixIcon: IconButton(
-                          icon: Icon(Icons.search, color: Colors.deepOrange),
+                          icon: const Icon(Icons.search, color: Colors.deepOrange),
                           onPressed: () {
-                            if (_formKey.currentState!.validate()) {
+                            if (formKey.currentState!.validate()) {
                               _fetchLocationData(
                                   pincodeController.text, setStateDialog);
                             }
@@ -94,21 +97,21 @@ class _OwnAnimalsState extends State<OwnAnimals> {
                         return null;
                       },
                     ),
-                    SizedBox(height: 20),
+                    const SizedBox(height: 20),
                     if (isLoading)
-                      CircularProgressIndicator(color: Colors.deepOrange),
+                      const CircularProgressIndicator(color: Colors.deepOrange),
                     if (city != null && state != null)
                       Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: Text('$city, $state',
-                            style: TextStyle(
+                            style: const TextStyle(
                                 fontSize: 16,
                                 color: Colors.deepOrange,
                                 decoration: TextDecoration.underline)),
                       ),
-                    SizedBox(height: 10),
+                    const SizedBox(height: 10),
                     if (locationLoading)
-                      CircularProgressIndicator(color: Colors.deepOrange),
+                      const CircularProgressIndicator(color: Colors.deepOrange),
                     if (!locationLoading)
                       ElevatedButton.icon(
                         style: ElevatedButton.styleFrom(
@@ -117,11 +120,11 @@ class _OwnAnimalsState extends State<OwnAnimals> {
                             borderRadius: BorderRadius.circular(20.0),
                           ),
                         ),
-                        icon: Icon(Icons.my_location, color: Colors.white),
+                        icon: const Icon(Icons.my_location, color: Colors.white),
                         label: Text(
                             AppLocalizations.of(context)!
                                 .translate('flsec_use_current_location'),
-                            style: TextStyle(color: Colors.white)),
+                            style: const TextStyle(color: Colors.white)),
                         onPressed: () {
                           setStateDialog(() {
                             locationLoading = true;
@@ -138,7 +141,7 @@ class _OwnAnimalsState extends State<OwnAnimals> {
             TextButton(
               child: Text(
                   AppLocalizations.of(context)!.translate('flsec_cancel'),
-                  style: TextStyle(color: Colors.deepOrange)),
+                  style: const TextStyle(color: Colors.deepOrange)),
               onPressed: () {
                 Navigator.of(context).pop();
               },
@@ -167,9 +170,7 @@ class _OwnAnimalsState extends State<OwnAnimals> {
     // Convert lactation number to "1st", "2nd", "3rd", etc.
     String lactation = '';
     if (lactationNum > 0) {
-      lactation = '$lactationNum' +
-          _getNumberSuffix(lactationNum) +
-          ' ${localization.translate('initial_lactation')}';
+      lactation = '$lactationNum${_getNumberSuffix(lactationNum)} ${localization.translate('initial_lactation')}';
     }
 
     // Convert age from months to years and months
@@ -180,7 +181,7 @@ class _OwnAnimalsState extends State<OwnAnimals> {
       age = '${years}y';
     }
     if (months > 0) {
-      age += (age.isNotEmpty ? ' and ' : '') + '${months}m';
+      age += '${age.isNotEmpty ? ' and ' : ''}${months}m';
     }
     if (age.isEmpty) {
       age = 'less than a month';
@@ -220,8 +221,8 @@ class _OwnAnimalsState extends State<OwnAnimals> {
 
   Future<void> _fetchLocationData(
       String pincode, void Function(void Function()) setStateDialog) async {
-    final url = Uri.parse(
-        'https://api.ckgoat.greatshark.tech/location/pincode/$pincode');
+    final url =
+        Uri.parse('https://api.ckgoat.greatshark.in/location/pincode/$pincode');
     setStateDialog(() => isLoading = true);
     try {
       final response = await http.get(url);
@@ -249,7 +250,7 @@ class _OwnAnimalsState extends State<OwnAnimals> {
       });
       pincodeController.text = "";
       ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Invalid Pincode. Please try again.')));
+          const SnackBar(content: Text('Invalid Pincode. Please try again.')));
     }
   }
 
@@ -258,7 +259,7 @@ class _OwnAnimalsState extends State<OwnAnimals> {
     bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
       ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Location services are disabled.')));
+          const SnackBar(content: Text('Location services are disabled.')));
       setStateDialog(() => locationLoading = false);
       return;
     }
@@ -268,14 +269,14 @@ class _OwnAnimalsState extends State<OwnAnimals> {
       permission = await Geolocator.requestPermission();
       if (permission == LocationPermission.denied) {
         ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Location permissions are denied')));
+            const SnackBar(content: Text('Location permissions are denied')));
         setStateDialog(() => locationLoading = false);
         return;
       }
     }
 
     if (permission == LocationPermission.deniedForever) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
           content: Text(
               'Location permissions are permanently denied, we cannot request permissions.')));
       setStateDialog(() => locationLoading = false);
@@ -292,7 +293,7 @@ class _OwnAnimalsState extends State<OwnAnimals> {
 
       final pincode = address.addressDetails.postcode;
 
-      if (pincode != null && pincode.isNotEmpty) {
+      if (pincode.isNotEmpty) {
         _fetchLocationData(pincode, setStateDialog);
         setStateDialog(() {
           locationLoading = false;
@@ -304,15 +305,15 @@ class _OwnAnimalsState extends State<OwnAnimals> {
       setStateDialog(() {
         locationLoading = false;
       });
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
           content:
               Text('Failed to fetch city from location. Please try again.')));
     }
   }
 
   void _getUid() async {
-    SharedPreferences _pref = await SharedPreferences.getInstance();
-    String res = _pref.getString('uid')!;
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    String res = pref.getString('uid')!;
     setState(() {
       uid = res;
     });
@@ -320,9 +321,9 @@ class _OwnAnimalsState extends State<OwnAnimals> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     _getUid();
+    fetchFav();
   }
 
   @override
@@ -341,7 +342,7 @@ class _OwnAnimalsState extends State<OwnAnimals> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(
+        title: const Text(
           "Your Animals",
           style: TextStyle(
             color: Colors.deepOrange,
@@ -358,7 +359,7 @@ class _OwnAnimalsState extends State<OwnAnimals> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 const Icon(Icons.location_on),
-                SizedBox(width: 10),
+                const SizedBox(width: 10),
                 ElevatedButton(
                   onPressed: () => showLocationDialog(context),
                   child: Text(selectedCity),
@@ -426,10 +427,7 @@ class _OwnAnimalsState extends State<OwnAnimals> {
                       final doc = snapshot.data!.docs[index];
                       final data = doc.data() as Map<String, dynamic>;
 
-                      final imageUrls =
-                          data['uploadedUrls'] as List<dynamic>? ?? [];
-                      final firstImageUrl =
-                          imageUrls.isNotEmpty ? imageUrls[0] as String : null;
+                      final thumbnail = data['thumbnail'] ?? [];
 
                       return GestureDetector(
                         onTap: () {
@@ -446,15 +444,16 @@ class _OwnAnimalsState extends State<OwnAnimals> {
                           children: [
                             Container(
                               decoration: BoxDecoration(
-                                  color: Colors.blue,
-                                  boxShadow: const [
-                                    BoxShadow(
-                                      color: Colors.black12,
-                                      blurRadius: 10,
-                                      offset: Offset(0, 5),
-                                    ),
-                                  ],
-                                  borderRadius: BorderRadius.circular(10)),
+                                color: Colors.blue,
+                                boxShadow: const [
+                                  BoxShadow(
+                                    color: Colors.black12,
+                                    blurRadius: 10,
+                                    offset: Offset(0, 5),
+                                  ),
+                                ],
+                                borderRadius: BorderRadius.circular(10),
+                              ),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
@@ -462,11 +461,27 @@ class _OwnAnimalsState extends State<OwnAnimals> {
                                     borderRadius: const BorderRadius.only(
                                         topLeft: Radius.circular(10),
                                         topRight: Radius.circular(10)),
-                                    child: Image.network(
-                                      firstImageUrl!,
-                                      fit: BoxFit.cover,
+                                    child: SizedBox(
                                       height: 150,
                                       width: double.infinity,
+                                      child: CachedNetworkImage(
+                                        imageUrl: thumbnail!,
+                                        fit: BoxFit.cover,
+                                        height: 150,
+                                        width: double.infinity,
+                                        placeholder: (context, url) =>
+                                            const Center(
+                                          child: CircularProgressIndicator(
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                        errorWidget: (context, url, error) =>
+                                            const Icon(
+                                          Icons.error_outline,
+                                          color: Colors.red,
+                                          size: 40,
+                                        ),
+                                      ),
                                     ),
                                   ),
                                   Padding(
@@ -479,13 +494,14 @@ class _OwnAnimalsState extends State<OwnAnimals> {
                                           maxLines: 3,
                                           generateTitle(context, data),
                                           style: const TextStyle(
-                                              color: Colors.white,
-                                              overflow: TextOverflow.ellipsis,
-                                              fontWeight: FontWeight.bold),
+                                            color: Colors.white,
+                                            overflow: TextOverflow.ellipsis,
+                                            fontWeight: FontWeight.bold,
+                                          ),
                                         ),
                                       ],
                                     ),
-                                  )
+                                  ),
                                 ],
                               ),
                             ),
@@ -502,14 +518,20 @@ class _OwnAnimalsState extends State<OwnAnimals> {
                                   ),
                                 ], shape: BoxShape.circle, color: Colors.white),
                                 child: IconButton(
-                                  icon: const Icon(
-                                    Icons.favorite_outline,
-                                    color: Colors.black45,
+                                  icon: Icon(
+                                    isFavorite(doc.id)
+                                        ? Icons.favorite
+                                        : Icons.favorite_border,
+                                    color: isFavorite(doc.id)
+                                        ? Colors.red
+                                        : Colors.grey,
                                   ),
-                                  onPressed: () {},
+                                  onPressed: () {
+                                    toggleFavorite(doc.id);
+                                  },
                                 ),
                               ),
-                            )
+                            ),
                           ],
                         ),
                       );
@@ -522,5 +544,59 @@ class _OwnAnimalsState extends State<OwnAnimals> {
         ),
       ),
     );
+  }
+
+  Future<void> toggleFavorite(String animalId) async {
+    // Get current user
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+
+    DocumentReference userDocRef =
+        FirebaseFirestore.instance.collection('users').doc(user.uid);
+    DocumentSnapshot userDoc = await userDocRef.get();
+
+    // Cast the document data to Map<String, dynamic>
+    setState(() {
+      favorites = (userDoc.data() as Map<String, dynamic>)['favorites'] ?? [];
+    });
+
+    if (favorites.contains(animalId)) {
+      // Remove from favorites
+      await userDocRef.update({
+        'favorites': FieldValue.arrayRemove([animalId])
+      });
+      setState(() {
+        favorites.remove(animalId);
+      });
+    } else {
+      // Add to favorites
+      await userDocRef.update({
+        'favorites': FieldValue.arrayUnion([animalId])
+      });
+      setState(() {
+        favorites.add(animalId);
+      });
+    }
+  }
+
+  Future<void> fetchFav() async {
+    // Get current user
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+
+    DocumentReference userDocRef =
+        FirebaseFirestore.instance.collection('users').doc(user.uid);
+    DocumentSnapshot userDoc = await userDocRef.get();
+
+    // Cast the document data to Map<String, dynamic>
+    setState(() {
+      favorites = (userDoc.data() as Map<String, dynamic>)['favorites'] ?? [];
+    });
+  }
+
+  bool isFavorite(
+    String animalId,
+  ) {
+    return favorites.contains(animalId);
   }
 }

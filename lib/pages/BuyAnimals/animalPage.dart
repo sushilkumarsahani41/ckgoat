@@ -1,9 +1,10 @@
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:ckgoat/main.dart';
-import 'package:whatsapp/whatsapp.dart';
 
 class AnimalPage extends StatefulWidget {
   final String animalId;
@@ -11,6 +12,7 @@ class AnimalPage extends StatefulWidget {
   const AnimalPage({super.key, required this.animalId});
 
   @override
+  // ignore: library_private_types_in_public_api
   _AnimalPageState createState() => _AnimalPageState();
 }
 
@@ -18,6 +20,7 @@ class _AnimalPageState extends State<AnimalPage> {
   int _current = 0;
   Map<String, dynamic>? animalData;
   List<String> images = [];
+  
 
   @override
   void initState() {
@@ -39,7 +42,9 @@ class _AnimalPageState extends State<AnimalPage> {
         });
       }
     } catch (e) {
-      print('Error fetching animal data: $e');
+      if (kDebugMode) {
+        print('Error fetching animal data: $e');
+      }
     }
   }
 
@@ -91,8 +96,38 @@ class _AnimalPageState extends State<AnimalPage> {
                             items: images
                                 .map((i) => ClipRRect(
                                       borderRadius: BorderRadius.circular(10),
-                                      child:
-                                          Image.network(i, fit: BoxFit.cover),
+                                      child: Image.network(
+                                        i,
+                                        fit: BoxFit.cover,
+                                        loadingBuilder: (BuildContext context,
+                                            Widget child,
+                                            ImageChunkEvent? loadingProgress) {
+                                          if (loadingProgress == null) {
+                                            return child; // Image is fully loaded, return the image
+                                          } else {
+                                            return Center(
+                                              child: CircularProgressIndicator(
+                                                color: Colors.deepOrange,
+                                                value: loadingProgress
+                                                            .expectedTotalBytes !=
+                                                        null
+                                                    ? loadingProgress
+                                                            .cumulativeBytesLoaded /
+                                                        (loadingProgress
+                                                                .expectedTotalBytes ??
+                                                            1)
+                                                    : null,
+                                              ),
+                                            ); // Show CircularProgressIndicator while image is loading
+                                          }
+                                        },
+                                        errorBuilder:
+                                            (context, error, stackTrace) {
+                                          return const Center(
+                                              child: Icon(Icons
+                                                  .error)); // Handle image loading error
+                                        },
+                                      ),
                                     ))
                                 .toList(),
                             options: CarouselOptions(
@@ -378,7 +413,7 @@ class _AnimalPageState extends State<AnimalPage> {
                             _handleWhatsApp();
                           },
                           icon: const Icon(Icons.message),
-                          label: Text('WhatsApp'),
+                          label: const Text('WhatsApp'),
                           style: ElevatedButton.styleFrom(
                             foregroundColor: Colors.white,
                             backgroundColor: Colors.green,
@@ -417,22 +452,29 @@ class _AnimalPageState extends State<AnimalPage> {
   launchWhatsappWithMobileNumber(String mobileNumber, String message) async {
     final whatsappAppUrl =
         "whatsapp://send?phone=$mobileNumber&text=${Uri.encodeComponent(message)}";
-
     final whatsappWebUrl =
         "https://api.whatsapp.com/send?phone=$mobileNumber&text=${Uri.encodeComponent(message)}";
 
     if (await canLaunchUrl(Uri.parse(whatsappAppUrl))) {
+      if (kDebugMode) {
+        print('Launching WhatsApp App URL: $whatsappAppUrl');
+      }
       await launchUrl(
         Uri.parse(whatsappAppUrl),
         mode: LaunchMode.externalApplication,
       );
     } else if (await canLaunchUrl(Uri.parse(whatsappWebUrl))) {
+      if (kDebugMode) {
+        print('Launching WhatsApp Web URL: $whatsappWebUrl');
+      }
       await launchUrl(
         Uri.parse(whatsappWebUrl),
         mode: LaunchMode.externalNonBrowserApplication,
       );
     } else {
-      print('Could not launch WhatsApp');
+      if (kDebugMode) {
+        print('Could not launch WhatsApp');
+      }
     }
   }
 

@@ -244,6 +244,7 @@ class _QuestionViewScreenState extends State<QuestionViewScreen> {
               'timestamp': FieldValue.serverTimestamp(),
             });
 
+            // ignore: use_build_context_synchronously
             Navigator.pop(context);
           }
         }
@@ -472,13 +473,13 @@ class _ReplyListState extends State<ReplyList> {
                       children: [
                         Text(
                           replyData['text'],
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontWeight: FontWeight.bold,
                           ),
                         ),
                         if (authorId == loggedInUserId)
                           IconButton(
-                            icon: Icon(Icons.delete, color: Colors.red),
+                            icon: const Icon(Icons.delete, color: Colors.red),
                             onPressed: () {
                               _showDeleteConfirmationDialog(context, replyId);
                             },

@@ -6,6 +6,7 @@ class AddQuestionPage extends StatefulWidget {
   const AddQuestionPage({super.key});
 
   @override
+  // ignore: library_private_types_in_public_api
   _AddQuestionPageState createState() => _AddQuestionPageState();
 }
 
@@ -37,6 +38,7 @@ class _AddQuestionPageState extends State<AddQuestionPage> {
         'timestamp': FieldValue.serverTimestamp(),
       });
 
+      // ignore: use_build_context_synchronously
       Navigator.pop(context);
     }
   }

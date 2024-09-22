@@ -1,9 +1,10 @@
+import 'package:ffmpeg_kit_flutter/ffmpeg_kit.dart';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'dart:io';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:video_player/video_player.dart';
-import 'package:video_thumbnail/video_thumbnail.dart';
+import 'package:path_provider/path_provider.dart';
 
 class FileUploadWidget extends StatefulWidget {
   final Function(List<File>) onFilesSelected;
@@ -82,12 +83,15 @@ class _FileUploadWidgetState extends State<FileUploadWidget> {
 
   Future<String?> _generateVideoThumbnail(String videoPath) async {
     try {
-      return await VideoThumbnail.thumbnailFile(
-        video: videoPath,
-        imageFormat: ImageFormat.JPEG,
-        maxHeight: 150,
-        quality: 75,
-      );
+      final directory = await getTemporaryDirectory();
+      final thumbnailPath =
+          '${directory.path}/thumb_${DateTime.now().millisecondsSinceEpoch}.jpg';
+
+      // Run ffmpeg command to generate the thumbnail
+      await FFmpegKit.execute(
+          '-i $videoPath -ss 00:00:01 -vframes 1 -q:v 2 $thumbnailPath');
+
+      return thumbnailPath;
     } catch (e) {
       print('Error generating thumbnail: $e');
       return null;
@@ -241,7 +245,8 @@ class _FileUploadWidgetState extends State<FileUploadWidget> {
                                   color: Colors.red,
                                   shape: BoxShape.circle,
                                 ),
-                                child: const Icon(Icons.close, color: Colors.white),
+                                child: const Icon(Icons.close,
+                                    color: Colors.white),
                               ),
                             ),
                           ),

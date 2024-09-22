@@ -5,7 +5,9 @@ import 'dart:io';
 
 class UploadService {
   // Updated endpoint and Bearer Token
-  final String uploadUrl = 'https://api.ckgoat.greatshark.tech/storage/upload/';
+  final String thumbnailUrl =
+      'https://api.ckgoat.greatshark.in/storage/genThumbnail/';
+  final String uploadUrl = 'https://api.ckgoat.greatshark.in/storage/upload/';
   final String bearerToken =
       'gCW0z7uTiZqbNwoYQsDvE2gAPxdHfXciazPmCzPneXpn444glZ'; // Your actual Bearer token
 
@@ -36,6 +38,30 @@ class UploadService {
       var jsonResponse = json.decode(responseBody);
       if (jsonResponse['file_urls'] != null) {
         return jsonResponse['file_urls'][0];
+      } else {
+        print('Error: ${jsonResponse['error']}');
+        return null;
+      }
+    } else {
+      print('Error: Server responded with status code ${response.statusCode}');
+      return null;
+    }
+  }
+
+  Future<String?> genThumbnail(File file) async {
+    var request = http.MultipartRequest('POST', Uri.parse(thumbnailUrl));
+
+    // Use Bearer Token for authentication
+    request.headers['Authorization'] = 'Bearer $bearerToken';
+    request.files.add(await http.MultipartFile.fromPath('file', file.path));
+
+    var response = await request.send();
+
+    if (response.statusCode == 201) {
+      var responseBody = await response.stream.bytesToString();
+      var jsonResponse = json.decode(responseBody);
+      if (jsonResponse['thumbnail_url'] != null) {
+        return jsonResponse['thumbnail_url'];
       } else {
         print('Error: ${jsonResponse['error']}');
         return null;

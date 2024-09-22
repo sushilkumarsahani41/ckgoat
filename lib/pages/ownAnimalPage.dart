@@ -1,7 +1,7 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:ckgoat/main.dart';
 
 class OwnAimalPage extends StatefulWidget {
@@ -38,7 +38,9 @@ class _OwnAimalPageState extends State<OwnAimalPage> {
         });
       }
     } catch (e) {
-      print('Error fetching animal data: $e');
+      if (kDebugMode) {
+        print('Error fetching animal data: $e');
+      }
     }
   }
 

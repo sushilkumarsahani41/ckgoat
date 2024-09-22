@@ -10,8 +10,6 @@ import 'package:flutter/material.dart';
 
 class RouteGenerator {
   static Route<dynamic> generateRoute(RouteSettings settings) {
-    final args = settings.arguments;
-
     switch (settings.name) {
       case '/':
         return _createRoute(const Splashscreen());
@@ -24,9 +22,9 @@ class RouteGenerator {
       case '/sellAnimal':
         return _createRoute(const SellAnimalPage());
       case "/terms_conditions":
-        return _createRoute(TermsAndConditionsPage());
+        return _createRoute(const TermsAndConditionsPage());
       case "/privacy_policy":
-        return _createRoute(PrivacyPolicyPage());
+        return _createRoute(const PrivacyPolicyPage());
       case "/your_animal":
         return _createRoute(const OwnAnimals());
       default:

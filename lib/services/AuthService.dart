@@ -65,24 +65,72 @@ class AuthService {
 
   static Future<String?> signInWithGoogle() async {
     try {
-      final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
-      final GoogleSignInAuthentication? googleAuth =
-          await googleUser?.authentication;
+      // Step 1: Trigger Google sign-in flow
+      print("Attempting to sign in with Google...");
+      final GoogleSignInAccount? googleUser = await GoogleSignIn(scopes: [
+        'email',
+        'profile',
+        // Add this if you need ID token:
+        'https://www.googleapis.com/auth/userinfo.profile',
+      ],).signIn();
 
+      if (googleUser == null) {
+        // If the user cancels the sign-in process
+        print("Google sign-in was canceled by the user.");
+        return null;
+      }
+
+      print(
+          "Google user sign-in successful: ${googleUser.displayName}, ${googleUser.email}");
+
+      // Step 2: Obtain authentication details from the request
+      final GoogleSignInAuthentication googleAuth =
+          await googleUser.authentication;
+      print(
+          "Obtained Google authentication details. AccessToken: ${googleAuth.accessToken}, IDToken: ${googleAuth.idToken}");
+
+      // Step 3: Create a new credential using GoogleAuthProvider
       final credential = GoogleAuthProvider.credential(
-        accessToken: googleAuth?.accessToken,
-        idToken: googleAuth?.idToken,
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
       );
 
-      final cred = await FirebaseAuth.instance.signInWithCredential(credential);
-      var uname = cred.user!.displayName;
-      var uemail = cred.user!.email;
-      var uid = cred.user!.uid;
-      await createUserDB(uid, uname, uemail, true);
-      return uid;
-    } catch (e) {
-      print(e.toString());
+      // Step 4: Sign in to Firebase with the Google credential
+      print("Signing in with Google credential to Firebase...");
+      final userCredential =
+          await FirebaseAuth.instance.signInWithCredential(credential);
+
+      print("Firebase sign-in successful. Fetching user details...");
+
+      // Step 5: Fetch user details
+      final user = userCredential.user;
+      if (user != null) {
+        var uname = user.displayName ?? 'Unknown';
+        var uemail = user.email ?? 'Unknown';
+        var uid = user.uid;
+
+        print("User details - Name: $uname, Email: $uemail, UID: $uid");
+
+        // Step 6: Call your method to create or update the user in the database
+        print("Creating/updating user in the database...");
+        await createUserDB(uid, uname, uemail, true);
+
+        print("User created/updated successfully in the database.");
+
+        return uid;
+      } else {
+        print("Error: Firebase user is null after sign-in.");
+        return null;
+      }
+    } on FirebaseAuthException catch (e) {
+      print("Firebase Authentication Error: ${e.message}");
+      if (e.code == 'account-exists-with-different-credential') {
+        print("Error: Account exists with different credential.");
+      } else if (e.code == 'invalid-credential') {
+        print("Error: Invalid credential.");
+      }
       return null;
+      // ignore: dead_code_catch_following_catch
     }
   }
 
