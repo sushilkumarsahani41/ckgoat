@@ -75,7 +75,7 @@
   "animal_breed": "Breed",
   "animal_gender": "Gender",
   "animal_age": "Age",
-  "animal_lactation": "Lactation",
+  "animal_lactation": "Calving",
   "animal_milk_capacity": "Milk Capacity",
   "animal_weight": "Weight",
   "animal_price": "Price",
@@ -234,8 +234,10 @@
   "delete_success": "Animal deleted successfully.",
   "delete_failed": "Failed to delete animal. Try again later.",
   "sold_success": "Animal marked as sold!",
-  "sold_failed": "Failed to mark animal as sold. Try again later."
-
-  
+  "sold_failed": "Failed to mark animal as sold. Try again later.",
+  "scd_fill_required_fields": "Please fill out all required fields",
+  "scd_upload_one_image": "Please upload at least one image",
+  "scd_provide_valid_pin_code": "Please provide a valid pin code and ensure location data is fetched",
+  "scd_enter_valid_mobile": "Please enter a valid mobile number"
 }
  

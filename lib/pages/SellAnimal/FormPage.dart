@@ -550,18 +550,68 @@ class _PrimaryInfoPageState extends State<PrimaryInfoPage> {
                   if (_formKey.currentState!.validate()) {
                     int years = int.tryParse(_ageYearController.text) ?? 0;
                     int months = int.tryParse(_ageMonthController.text) ?? 0;
-                    double weight =
-                        double.tryParse(_weightController.text) ?? 5.0;
+                    double weight = double.tryParse(_weightController.text) ?? 5.0;
 
                     if (!_isKg) {
                       weight = weight / 1000; // Convert g to kg
                     }
 
+                    // Validate if breed is required and not empty
+                    if ((widget.animalType == 'Cow' || widget.animalType == 'Buffalo' || widget.animalType == 'Goat') && _breedController.text.isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text(localizations.translate('initial_please_select_breed')))
+                      );
+                      return;
+                    }
+
+                    // Validate if gender is selected
+                    if (_selectedGender == null) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text(localizations.translate('initial_please_select_gender')))
+                      );
+                      return;
+                    }
+
+                    // Validate lactation and milk capacity if applicable
+                    if ((widget.animalType == 'Cow' || widget.animalType == 'Buffalo' || widget.animalType == 'Goat') && _selectedGender == 'Female') {
+                      if (_selectedLactation == 0 || _selectedMilkCapacity == 0) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text(localizations.translate('initial_please_select_lactation_milk_capacity')))
+                        );
+                        return;
+                      }
+                    }
+
+                    // Validate if age (years and months) is provided
+                    if (_ageYearController.text.isEmpty || _ageMonthController.text.isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text(localizations.translate('initial_please_enter_age')))
+                      );
+                      return;
+                    }
+
+                    // Validate if weight is provided
+                    if (_weightController.text.isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text(localizations.translate('initial_please_enter_weight')))
+                      );
+                      return;
+                    }
+
+                    // Validate if price is provided
+                    if (_priceController.text.isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text(localizations.translate('initial_please_enter_price')))
+                      );
+                      return;
+                    }
+
+                    // All validations passed, navigate to next page
                     Navigator.push(
                       context,
                       MaterialPageRoute(
                         builder: (context) => SecondaryInfoPage(
-                          animalType: animalType,
+                          animalType: widget.animalType,
                           breed: _breedController.text,
                           age: years * 12 + months,
                           weight: weight,

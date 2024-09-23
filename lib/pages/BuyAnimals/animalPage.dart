@@ -19,6 +19,7 @@ class AnimalPage extends StatefulWidget {
 class _AnimalPageState extends State<AnimalPage> {
   int _current = 0;
   Map<String, dynamic>? animalData;
+  Map<String, dynamic>? userData;
   List<String> images = [];
   
 
@@ -40,10 +41,28 @@ class _AnimalPageState extends State<AnimalPage> {
           animalData = snapshot.data() as Map<String, dynamic>?;
           images = List<String>.from(animalData?['uploadedUrls'] ?? []);
         });
+        _fetchUserData(animalData?['uid']);
       }
     } catch (e) {
       if (kDebugMode) {
         print('Error fetching animal data: $e');
+      }
+    }
+  }
+
+  void _fetchUserData(String? uid) async {
+    if (uid == null) return;
+    try {
+      DocumentSnapshot userSnapshot =
+      await FirebaseFirestore.instance.collection('users').doc(uid).get();
+      if (userSnapshot.exists) {
+        setState(() {
+          userData = userSnapshot.data() as Map<String, dynamic>?;
+        });
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error fetching user data: $e');
       }
     }
   }
@@ -302,9 +321,13 @@ class _AnimalPageState extends State<AnimalPage> {
                                       const Icon(Icons.location_on,
                                           color: Colors.grey),
                                       const SizedBox(width: 5),
-                                      Text(
-                                        '${localizations.translate('animal_address')}: ${animalData?['address']}',
-                                        style: const TextStyle(fontSize: 16),
+                                      Expanded(
+                                        child: Text(
+                                          '${localizations.translate('animal_address')}: ${animalData?['address']}',
+                                          style: const TextStyle(fontSize: 16),
+                                          maxLines: 3,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
                                       ),
                                     ],
                                   ),
@@ -356,6 +379,18 @@ class _AnimalPageState extends State<AnimalPage> {
                                       Text(
                                         '${localizations.translate('animal_mobile')}: ${animalData?['mobileNumber']}',
                                         style: const TextStyle(fontSize: 16),
+                                      ),
+                                    ],
+                                  ),
+                                if (userData != null)
+                                  Row(
+                                    children: [
+                                      const Icon(Icons.person,
+                                          color: Colors.grey),
+                                      const SizedBox(width: 5),
+                                      Text(
+                                        userData?['name'],
+                                        style: const TextStyle(fontSize: 16, color: Colors.deepOrange, fontWeight: FontWeight.bold),
                                       ),
                                     ],
                                   ),

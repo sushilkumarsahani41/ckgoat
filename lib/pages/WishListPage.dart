@@ -1,10 +1,11 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:ckgoat/main.dart';
 import 'package:ckgoat/pages/BuyAnimals/animalPage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import '../widgets/animalCard.dart';
 
 class Wishlistpage extends StatefulWidget {
   const Wishlistpage({super.key});
@@ -51,112 +52,20 @@ class _WishlistpageState extends State<Wishlistpage> {
                 itemCount: animals.length,
                 itemBuilder: (context, index) {
                   final doc = animals[index];
-                  final data = doc.data() as Map<String, dynamic>;
-
-                  final thumbnail = data['thumbnail'];
-
-                  return GestureDetector(
+                  return AnimalCard(
+                    doc: doc,  // Pass the Firestore DocumentSnapshot
+                    isFavorite: isFavorite(doc.id),  // Check if it's in the favorites
                     onTap: () {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => AnimalPage(animalId: doc.id),
+                          builder: (context) => AnimalPage(animalId: doc.id),  // Pass doc.id to the next page
                         ),
                       );
                     },
-                    child: Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        Container(
-                          decoration: BoxDecoration(
-                            color: Colors.blue,
-                            boxShadow: const [
-                              BoxShadow(
-                                color: Colors.black12,
-                                blurRadius: 10,
-                                offset: Offset(0, 5),
-                              ),
-                            ],
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              ClipRRect(
-                                borderRadius: const BorderRadius.only(
-                                    topLeft: Radius.circular(10),
-                                    topRight: Radius.circular(10)),
-                                child: SizedBox(
-                                  height: 150,
-                                  width: double.infinity,
-                                  child: CachedNetworkImage(
-                                    imageUrl: thumbnail!,
-                                    fit: BoxFit.cover,
-                                    height: 150,
-                                    width: double.infinity,
-                                    placeholder: (context, url) => const Center(
-                                      child: CircularProgressIndicator(
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                    errorWidget: (context, url, error) =>
-                                        const Icon(
-                                      Icons.error_outline,
-                                      color: Colors.red,
-                                      size: 40,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      maxLines: 3,
-                                      generateTitle(context, data),
-                                      style: const TextStyle(
-                                        color: Colors.white,
-                                        overflow: TextOverflow.ellipsis,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        Positioned(
-                          right: 10,
-                          bottom: 70,
-                          child: Container(
-                            width: 40,
-                            decoration: const BoxDecoration(boxShadow: [
-                              BoxShadow(
-                                color: Colors.black12,
-                                blurRadius: 10,
-                                offset: Offset(0, 5),
-                              ),
-                            ], shape: BoxShape.circle, color: Colors.white),
-                            child: IconButton(
-                              icon: Icon(
-                                isFavorite(doc.id)
-                                    ? Icons.favorite
-                                    : Icons.favorite_border,
-                                color: isFavorite(doc.id)
-                                    ? Colors.red
-                                    : Colors.grey,
-                              ),
-                              onPressed: () {
-                                toggleFavorite(doc.id);
-                              },
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
+                    toggleFavorite: () {
+                      toggleFavorite(doc.id);  // Call your toggleFavorite function
+                    },
                   );
                 },
               ),

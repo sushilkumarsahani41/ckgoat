@@ -96,10 +96,27 @@ class _SecondaryInfoPageState extends State<SecondaryInfoPage> {
   Future<void> _submitForm() async {
     if (isSubmitting) return; // Prevent multiple submissions
 
-    if (!_formKey.currentState!.validate()) return;
+    // Validate form fields
+    if (!_formKey.currentState!.validate()) {
+      _showSnackBar(AppLocalizations.of(context)!.translate('scd_fill_required_fields'));
+      return;
+    }
 
+    // Check if at least one image is selected
     if (selectedFiles.isEmpty) {
-      _showSnackBar('Please upload at least one image');
+      _showSnackBar(AppLocalizations.of(context)!.translate('scd_upload_one_image'));
+      return;
+    }
+
+    // Ensure location (city and state) is fetched correctly
+    if (!isPinCodeValid || _cityController.text.isEmpty || _stateController.text.isEmpty) {
+      _showSnackBar(AppLocalizations.of(context)!.translate('scd_provide_valid_pin_code'));
+      return;
+    }
+
+    // Check if mobile number is filled and valid
+    if (_mobileNumberController.text.isEmpty || _mobileNumberController.text.length != 10) {
+      _showSnackBar(AppLocalizations.of(context)!.translate('scd_enter_valid_mobile'));
       return;
     }
 
@@ -108,8 +125,10 @@ class _SecondaryInfoPageState extends State<SecondaryInfoPage> {
       isSubmitting = true; // Set flag to prevent multiple submissions
     });
 
+    // Send OTP after all fields are validated
     await _sendOtp(_mobileNumberController.text);
   }
+
 
   void _onFilesSelected(List<File> files) {
     setState(() {
