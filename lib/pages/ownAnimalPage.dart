@@ -2,7 +2,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:ckgoat/main.dart';
+
+import '../localization.dart';
 
 class OwnAimalPage extends StatefulWidget {
   final String animalId;

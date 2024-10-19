@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../main.dart'; // Importing MyApp for locale change handling
+
+import '../localization.dart';
+// Importing MyApp for locale change handling
 
 class LanguageSelectionPage extends StatelessWidget {
   final Function(Locale) onLocaleChange;

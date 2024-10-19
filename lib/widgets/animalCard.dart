@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-
-import '../main.dart';
+import '../localization.dart';
 
 class AnimalCard extends StatelessWidget {
   final DocumentSnapshot doc;  // Accept Firestore DocumentSnapshot
@@ -11,12 +10,12 @@ class AnimalCard extends StatelessWidget {
   final Function toggleFavorite;
 
   const AnimalCard({
-    Key? key,
+    super.key,
     required this.doc,  // DocumentSnapshot is passed here
     required this.isFavorite,
     required this.onTap,
     required this.toggleFavorite,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

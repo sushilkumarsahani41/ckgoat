@@ -1,10 +1,11 @@
-import 'package:ckgoat/main.dart';
 import 'package:ckgoat/services/AuthService.dart';
 import 'package:ckgoat/widgets/elevation.dart';
 import 'package:ckgoat/widgets/snakbar.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:shared_preferences/shared_preferences.dart';// Localization import
+import 'package:shared_preferences/shared_preferences.dart';
+
+import '../localization.dart';// Localization import
 
 class SignupPage extends StatefulWidget {
   const SignupPage({super.key});

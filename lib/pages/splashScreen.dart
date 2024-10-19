@@ -21,9 +21,8 @@ class _SplashscreenState extends State<Splashscreen> {
   // Simulates a load or delay of 3 seconds and then navigates to the language selection page
   void _navigateToLanguageSelection() async {
     await Future.delayed(const Duration(seconds: 3));
-    if (!mounted) {
+    if (!mounted)
       return; // Check if the widget is still mounted before using context
-    }
     SharedPreferences pref = await SharedPreferences.getInstance();
     String? uid = pref.getString('uid') ?? '';
     if (uid.isEmpty) {
@@ -51,9 +50,8 @@ class _SplashscreenState extends State<Splashscreen> {
     SharedPreferences pref = await SharedPreferences.getInstance();
     await pref.setString('languageCode', locale.languageCode);
 
-    if (!mounted) {
+    if (!mounted)
       return; // Check if the widget is still mounted before using context
-    }
 
     // After selecting language, navigate to the home page
     Navigator.pushReplacementNamed(context, '/login');

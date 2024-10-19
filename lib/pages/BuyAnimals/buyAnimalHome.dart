@@ -1,6 +1,7 @@
-import 'package:ckgoat/main.dart';
 import 'package:ckgoat/pages/BuyAnimals/filterSection.dart';
-import 'package:flutter/material.dart'; // Assuming you have AppLocalizations
+import 'package:flutter/material.dart';
+
+import '../../localization.dart'; // Assuming you have AppLocalizations
 
 class BuyHome extends StatefulWidget {
   const BuyHome({super.key});

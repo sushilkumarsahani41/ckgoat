@@ -1,6 +1,5 @@
 // ignore: file_names
 import 'dart:convert';
-import 'package:ckgoat/main.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -9,6 +8,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
 import 'package:ckgoat/pages/BuyAnimals/animalPage.dart';
 
+import '../../localization.dart';
 import '../../widgets/animalCard.dart';
 
 class FilterSection extends StatefulWidget {
@@ -72,6 +72,7 @@ class _FilterSectionState extends State<FilterSection> {
   Future<void> _fetchAnimals() async {
     Query query = FirebaseFirestore.instance
         .collection('animals')
+        .orderBy('timestamp', descending: true)// Order by timestamp
         .limit(documentLimit); // Fetch only 'documentLimit' documents
 
     if (selectedCity != 'All India' && city != null) {
@@ -189,9 +190,9 @@ class _FilterSectionState extends State<FilterSection> {
 
     Query query = FirebaseFirestore.instance
         .collection('animals')
-        .limit(documentLimit)
-        .startAfterDocument(
-            lastDocument!); // Continue after last fetched document
+        .orderBy('timestamp', descending: true) // Order by timestamp
+        .startAfterDocument(lastDocument!) // Continue after last fetched document
+        .limit(documentLimit); // Fetch only 'documentLimit' documents
 
     if (selectedCity != 'All India' && city != null) {
       query = query.where('city', isEqualTo: city);
@@ -221,6 +222,7 @@ class _FilterSectionState extends State<FilterSection> {
       });
     }
   }
+
 
   // UI Code
   @override
@@ -336,7 +338,7 @@ class _FilterSectionState extends State<FilterSection> {
   Future<void> _fetchLocationData(
       String pincode, void Function(void Function()) setStateDialog) async {
     final url = Uri.parse(
-        'https://api.ckgoat.greatshark.in/location/pincode/$pincode');
+        'https://api-ckgoat.greatshark.in/location/pincode/$pincode');
     setStateDialog(() => isLoading = true);
     try {
       final response = await http.get(url);
@@ -347,9 +349,10 @@ class _FilterSectionState extends State<FilterSection> {
             city = data['district'];
             state = data['state'];
             setState(() {
-              selectedCity = "$city, $state";
-            }); // Automatically set the city
-            isLoading = false;
+              selectedCity = city!;
+              isLoading = false;
+              _fetchAnimals(); // Refetch animals after updating city
+            });
             Navigator.of(context).pop(); // Close dialog after setting city
           });
         } else {
@@ -363,11 +366,11 @@ class _FilterSectionState extends State<FilterSection> {
         isLoading = false;
       });
       pincodeController.text = "";
-      // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Invalid Pincode. Please try again.')));
     }
   }
+
 
   Future<void> _getCurrentLocation(
       void Function(void Function()) setStateDialog) async {
@@ -415,6 +418,7 @@ class _FilterSectionState extends State<FilterSection> {
         _fetchLocationData(pincode, setStateDialog);
         setStateDialog(() {
           locationLoading = false;
+          _fetchAnimals();
         });
       } else {
         throw Exception('Failed to fetch postcode from location.');

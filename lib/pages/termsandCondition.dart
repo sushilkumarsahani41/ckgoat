@@ -1,5 +1,6 @@
-import 'package:ckgoat/main.dart';
-import 'package:flutter/material.dart'; // Adjust the path as necessary
+import 'package:flutter/material.dart';
+
+import '../localization.dart'; // Adjust the path as necessary
 
 class TermsAndConditionsPage extends StatelessWidget {
   const TermsAndConditionsPage({super.key});

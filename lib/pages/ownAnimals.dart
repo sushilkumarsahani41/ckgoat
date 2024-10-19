@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'package:ckgoat/main.dart';
 import 'package:ckgoat/pages/ownAnimalPage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -9,6 +8,7 @@ import 'package:http/http.dart' as http;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../localization.dart';
 import '../widgets/animalCard.dart';
 
 class OwnAnimals extends StatefulWidget {
@@ -222,7 +222,7 @@ class _OwnAnimalsState extends State<OwnAnimals> {
   Future<void> _fetchLocationData(
       String pincode, void Function(void Function()) setStateDialog) async {
     final url =
-        Uri.parse('https://api.ckgoat.greatshark.in/location/pincode/$pincode');
+        Uri.parse('https://api-ckgoat.greatshark.in/location/pincode/$pincode');
     setStateDialog(() => isLoading = true);
     try {
       final response = await http.get(url);

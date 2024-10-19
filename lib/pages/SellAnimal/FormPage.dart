@@ -1,7 +1,8 @@
 import 'package:ckgoat/pages/SellAnimal/secondaryPage.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:ckgoat/main.dart';
+
+import '../../localization.dart';
 
 // Breeds Lists
 const List<String> cowBreeds = [
@@ -573,14 +574,14 @@ class _PrimaryInfoPageState extends State<PrimaryInfoPage> {
                     }
 
                     // Validate lactation and milk capacity if applicable
-                    if ((widget.animalType == 'Cow' || widget.animalType == 'Buffalo' || widget.animalType == 'Goat') && _selectedGender == 'Female') {
-                      if (_selectedLactation == 0 || _selectedMilkCapacity == 0) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text(localizations.translate('initial_please_select_lactation_milk_capacity')))
-                        );
-                        return;
-                      }
-                    }
+                    // if ((widget.animalType == 'Cow' || widget.animalType == 'Buffalo' || widget.animalType == 'Goat') && _selectedGender == 'Female') {
+                    //   if (_selectedLactation == 0 || _selectedMilkCapacity == 0) {
+                    //     ScaffoldMessenger.of(context).showSnackBar(
+                    //         SnackBar(content: Text(localizations.translate('initial_please_select_lactation_milk_capacity')))
+                    //     );
+                    //     return;
+                    //   }
+                    // }
 
                     // Validate if age (years and months) is provided
                     if (_ageYearController.text.isEmpty || _ageMonthController.text.isEmpty) {

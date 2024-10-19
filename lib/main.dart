@@ -1,13 +1,13 @@
 import 'package:ckgoat/firebase_options.dart';
 import 'package:ckgoat/routes.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'dart:convert';
-import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:in_app_update/in_app_update.dart';
+
+import 'localization.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -16,7 +16,7 @@ void main() async {
   );
   FirebaseFirestore.instance.settings = const Settings(
     persistenceEnabled: true,
-    cacheSizeBytes: Settings.CACHE_SIZE_UNLIMITED, // or specify size in bytes
+    cacheSizeBytes: Settings.CACHE_SIZE_UNLIMITED,
   );
   runApp(const MyApp());
 }
@@ -24,12 +24,10 @@ void main() async {
 class MyApp extends StatefulWidget {
   const MyApp({super.key});
 
-  // ignore: library_private_types_in_public_api
   static _MyAppState? of(BuildContext context) =>
       context.findAncestorStateOfType<_MyAppState>();
 
   @override
-  // ignore: library_private_types_in_public_api
   _MyAppState createState() => _MyAppState();
 }
 
@@ -40,10 +38,10 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
-    _loadLocale(); // Load the saved locale when the app starts
+    _loadLocale();
+    checkForUpdate(); // Check for updates when the app starts
   }
 
-  // Method to load the saved locale from SharedPreferences
   Future<void> _loadLocale() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? savedLocale = prefs.getString(localeKey);
@@ -54,18 +52,62 @@ class _MyAppState extends State<MyApp> {
     }
   }
 
-  // Method to save the selected locale in SharedPreferences
   Future<void> _saveLocale(Locale locale) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setString(localeKey, locale.languageCode);
   }
 
-  // Method to change the locale and persist the selection
   void setLocale(Locale locale) {
     setState(() {
       _locale = locale;
     });
     _saveLocale(locale); // Save the selected locale
+  }
+
+  Future<void> checkForUpdate() async {
+    try {
+      AppUpdateInfo updateInfo = await InAppUpdate.checkForUpdate();
+      if (updateInfo.updateAvailability == UpdateAvailability.updateAvailable) {
+        if (updateInfo.immediateUpdateAllowed) {
+          // Immediate update (forces user to update immediately)
+          InAppUpdate.performImmediateUpdate().catchError((e) {
+            print('Immediate update failed: $e');
+          });
+        } else if (updateInfo.flexibleUpdateAllowed) {
+          // Start flexible update (allow user to download and update in background)
+          InAppUpdate.startFlexibleUpdate().catchError((e) {
+            print('Flexible update failed: $e');
+          }).then((result) {
+            if (result == AppUpdateResult.success) {
+              // Show dialog to ask user to restart after update is downloaded
+              showFlexibleUpdateDialog();
+            }
+          });
+        }
+      }
+    } catch (e) {
+      print('Failed to check for updates: $e');
+    }
+  }
+
+  void showFlexibleUpdateDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Update Ready'),
+        content:const Text('An update has been downloaded. Please restart the app.'),
+        actions: [
+          TextButton(
+            onPressed: () {
+              InAppUpdate.completeFlexibleUpdate().catchError((e) {
+                print('Failed to complete flexible update: $e');
+              });
+            },
+            child: const Text('Restart'),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -91,67 +133,4 @@ class _MyAppState extends State<MyApp> {
       onGenerateRoute: RouteGenerator.generateRoute,
     );
   }
-}
-
-class AppLocalizations {
-  final Locale locale;
-
-  AppLocalizations(this.locale);
-
-  static AppLocalizations? of(BuildContext context) {
-    return Localizations.of<AppLocalizations>(context, AppLocalizations);
-  }
-
-  static const LocalizationsDelegate<AppLocalizations> delegate =
-      _AppLocalizationsDelegate();
-
-  late Map<String, String> _localizedStrings;
-
-  Future<bool> load() async {
-    try {
-      String jsonString = await rootBundle
-          .loadString('assets/lang/${locale.languageCode}.json');
-      Map<String, dynamic> jsonMap = json.decode(jsonString);
-      _localizedStrings =
-          jsonMap.map((key, value) => MapEntry(key, value.toString()));
-      return true;
-    } catch (e) {
-      if (kDebugMode) {
-        print('Error loading language file: $e');
-      }
-      // Fallback to English if loading fails
-      String fallbackJsonString =
-          await rootBundle.loadString('assets/lang/en.json');
-      Map<String, dynamic> fallbackJsonMap = json.decode(fallbackJsonString);
-      _localizedStrings =
-          fallbackJsonMap.map((key, value) => MapEntry(key, value.toString()));
-      return false;
-    }
-  }
-
-  String translate(
-    String key,
-  ) {
-    return _localizedStrings[key] ?? 'Translation not found';
-  }
-}
-
-class _AppLocalizationsDelegate
-    extends LocalizationsDelegate<AppLocalizations> {
-  const _AppLocalizationsDelegate();
-
-  @override
-  bool isSupported(Locale locale) {
-    return ['en', 'hi', 'mr'].contains(locale.languageCode);
-  }
-
-  @override
-  Future<AppLocalizations> load(Locale locale) async {
-    AppLocalizations localizations = AppLocalizations(locale);
-    await localizations.load();
-    return localizations;
-  }
-
-  @override
-  bool shouldReload(LocalizationsDelegate<AppLocalizations> old) => false;
 }

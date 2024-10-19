@@ -1,5 +1,7 @@
-import 'package:ckgoat/main.dart'; // Adjust the path as necessary
+// Adjust the path as necessary
 import 'package:flutter/material.dart';
+
+import '../localization.dart';
 
 class PrivacyPolicyPage extends StatelessWidget {
   const PrivacyPolicyPage({super.key});
